@@ -1,0 +1,7 @@
+Desain Antarmuka (Mockup UI) Sistem Informasi Presensi Perkuliahan
+Dibuat oleh: Fransiskus Jul Rikar Gea (Anggota 3)
+
+Tautan Desain Figma:
+https://www.figma.com/design/yqWUBjU1hUS5E2RpfY9h1v/UI-UX-Sistem-Informasi-Presensi?node-id=0-1&t=ag2xsTpN13qCsfWm-1 
+
+Catatan: Desain ini telah mencakup seluruh kebutuhan fungsional sesuai SRS.
