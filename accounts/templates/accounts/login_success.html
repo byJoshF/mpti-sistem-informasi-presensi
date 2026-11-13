@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Berhasil</title>
+</head>
+<body>
+    <h1>Login Berhasil!</h1>
+
+    <p>Selamat datang, {{ user.full_name }}.</p>
+
+    <p>
+        Peran:
+        {% if user.role == "STUDENT" %}
+            Mahasiswa
+        {% else %}
+            Dosen
+        {% endif %}
+    </p>
+
+    <p>Ini merupakan halaman sementara untuk pengujian login.</p>
+
+    <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button type="submit">Keluar</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Kelas</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            margin-bottom: 18px;
+            border-radius: 9px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .code {
+            display: inline-block;
+            background: #eef2ff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .student {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+
+        button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 9px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .message {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+        }
+
+        .empty {
+            color: #666;
+            padding: 15px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <a href="{% url 'classrooms:classroom_list' %}" class="back">
+            ← Kembali ke Daftar Kelas
+        </a>
+
+        <h1>{{ classroom.name }}</h1>
+
+        <div class="card">
+            <h3>Informasi Kelas</h3>
+
+            <p>
+                {{ classroom.description|default:"Tidak ada deskripsi kelas." }}
+            </p>
+
+            <p>Kode Gabung:</p>
+            <div class="code">{{ classroom.join_code }}</div>
+
+            <p>Jumlah peserta aktif: {{ enrollments|length }} mahasiswa</p>
+        </div>
+
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+
+        <div class="card">
+            <h2>Daftar Peserta</h2>
+
+            {% for enrollment in enrollments %}
+                <div class="student">
+                    <div>
+                        <strong>{{ enrollment.student.full_name }}</strong>
+                        <br>
+                        <small>NIM: {{ enrollment.student.username }}</small>
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{% url 'classrooms:enrollment_remove' classroom.pk enrollment.pk %}"
+                        onsubmit="return confirm('Apakah kamu yakin ingin mengeluarkan mahasiswa ini dari kelas?')"
+                    >
+                        {% csrf_token %}
+                        <button type="submit">Keluarkan</button>
+                    </form>
+                </div>
+
+            {% empty %}
+                <p class="empty">
+                    Belum ada mahasiswa yang bergabung ke kelas ini.
+                </p>
+            {% endfor %}
+        </div>
+
+    </div>
+</body>
+</html>

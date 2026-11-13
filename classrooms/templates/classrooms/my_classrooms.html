@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelas Saya</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 11px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+        .class-card, .empty {
+            background: white;
+            padding: 22px;
+            margin-bottom: 15px;
+            border-radius: 9px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .message {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="header">
+            <div>
+                <h1>Kelas Saya</h1>
+                <p>Daftar kelas perkuliahan yang kamu ikuti.</p>
+            </div>
+
+            <a href="{% url 'classrooms:classroom_join' %}" class="button">
+                + Gabung Kelas
+            </a>
+        </div>
+
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+
+        {% for enrollment in enrollments %}
+            <div class="class-card">
+                <h2>{{ enrollment.classroom.name }}</h2>
+
+                <p>
+                    {{ enrollment.classroom.description|default:"Tidak ada deskripsi kelas." }}
+                </p>
+
+                <p>
+                    Dosen:
+                    {{ enrollment.classroom.teacher.full_name }}
+                </p>
+
+                <small>
+                    Bergabung:
+                    {{ enrollment.joined_at|date:"d M Y, H:i" }}
+                </small>
+            </div>
+
+        {% empty %}
+            <div class="empty">
+                <h3>Belum Ada Kelas</h3>
+                <p>Kamu belum mengikuti kelas perkuliahan apa pun.</p>
+                <p>Silakan gunakan tombol Gabung Kelas.</p>
+            </div>
+        {% endfor %}
+
+    </div>
+</body>
+</html>

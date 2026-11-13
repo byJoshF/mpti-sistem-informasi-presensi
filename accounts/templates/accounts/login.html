@@ -1,0 +1,466 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Informasi Presensi</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+        }
+
+        .login-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 45% 55%;
+        }
+
+        /* Panel kiri */
+        .brand-panel {
+            background: linear-gradient(135deg, #303da8, #008d88);
+            color: white;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .brand-logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .brand-content {
+            max-width: 470px;
+        }
+
+        .brand-small {
+            font-size: 10px;
+            letter-spacing: 1px;
+            opacity: 0.85;
+        }
+
+        .brand-content h1 {
+            font-size: 36px;
+            line-height: 1.3;
+            margin: 20px 0;
+        }
+
+        .brand-description {
+            line-height: 1.6;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .preview-card {
+            background: white;
+            color: #263453;
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 45px;
+        }
+
+        .preview-card h2 {
+            font-size: 21px;
+            margin: 15px 0 8px;
+        }
+
+        .preview-card p {
+            color: #7b8495;
+            font-size: 12px;
+        }
+
+        .preview-status {
+            display: inline-block;
+            background: #e2f7ee;
+            color: #16835c;
+            padding: 9px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .brand-bottom {
+            font-size: 13px;
+        }
+
+        .copyright {
+            font-size: 10px;
+            opacity: 0.75;
+            margin-top: 35px;
+        }
+
+        /* Panel kanan */
+        .login-panel {
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 35px;
+        }
+
+        .login-content {
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .eyebrow {
+            color: #554fe0;
+            font-size: 10px;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .login-content h2 {
+            font-size: 28px;
+            margin: 15px 0 8px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #8992a2;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        /* Pilihan peran */
+        .role-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #eef1f8;
+            padding: 4px;
+            border-radius: 8px;
+            margin-bottom: 23px;
+        }
+
+        .role-option {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .role-option input {
+            display: none;
+        }
+
+        .role-option span {
+            display: block;
+            padding: 10px;
+            border-radius: 7px;
+            color: #68738b;
+            font-size: 13px;
+        }
+
+        .role-option input:checked + span {
+            background: white;
+            color: #5147df;
+            font-weight: bold;
+            box-shadow: 0 1px 4px #00000012;
+        }
+
+        /* Form */
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #dce2ed;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .field input:focus {
+            border-color: #554fe0;
+        }
+
+        .helper-text {
+            font-size: 11px;
+            color: #929bad;
+            margin-top: 10px;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #554fe0;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .login-button:hover {
+            background: #443bc7;
+        }
+
+        .register-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+            margin-top: 23px;
+        }
+
+        .register-row a {
+            color: #5147df;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .register-row a:hover {
+            text-decoration: underline;
+        }
+
+        .preview-note {
+            color: #929bad;
+            font-size: 11px;
+            margin-top: 32px;
+        }
+
+        .security-note {
+            color: #929bad;
+            text-align: center;
+            font-size: 11px;
+            margin-top: 65px;
+        }
+
+        .errorlist {
+            color: #c62828;
+            font-size: 12px;
+            padding-left: 18px;
+        }
+
+        /* Tampilan HP */
+        @media (max-width: 800px) {
+            .login-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel {
+                min-height: 330px;
+                padding: 25px;
+            }
+
+            .brand-content h1 {
+                font-size: 27px;
+            }
+
+            .preview-card {
+                margin-top: 20px;
+            }
+
+            .brand-bottom {
+                margin-top: 30px;
+            }
+
+            .login-panel {
+                padding: 40px 22px;
+            }
+
+            .security-note {
+                margin-top: 35px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-layout">
+
+    <!-- Panel kiri -->
+    <section class="brand-panel">
+
+        <div class="brand-logo">presensi.</div>
+
+        <div class="brand-content">
+            <div class="brand-small">
+                PRESENSI PERKULIAHAN, LEBIH TERHUBUNG
+            </div>
+
+            <h1>Setiap kehadiran,<br>satu langkah maju.</h1>
+
+            <p class="brand-description">
+                Dari ruang kelas hingga rekap akhir.
+                Kelola kehadiran perkuliahan dalam satu
+                pengalaman yang terintegrasi.
+            </p>
+
+            <div class="preview-card">
+                <div class="brand-small">AKTIVITAS PERKULIAHAN</div>
+
+                <h2>Basis Data</h2>
+
+                <p>Contoh aktivitas perkuliahan</p>
+
+                <span class="preview-status">
+                    ✓ Hadir tercatat
+                </span>
+
+                <hr style="border:0;border-top:1px solid #eee;margin:20px 0;">
+
+                <p>Lebih praktis untuk mahasiswa dan dosen.</p>
+            </div>
+        </div>
+
+        <div class="brand-bottom">
+            Satu kode. Satu kelas. Semua tercatat.
+
+            <div class="copyright">
+                © 2026 Presensi - Sistem Informasi Presensi Perkuliahan
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Panel kanan -->
+    <section class="login-panel">
+
+        <div class="login-content">
+
+            <div class="eyebrow">SELAMAT DATANG KEMBALI</div>
+
+            <h2>Masuk ke ruang belajar.</h2>
+
+            <p class="subtitle">
+                Gunakan akun kampus untuk melanjutkan aktivitas Anda.
+            </p>
+
+            {% if form.non_field_errors %}
+                {{ form.non_field_errors }}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="role-tabs">
+
+                    <label class="role-option">
+                        <input
+                            type="radio"
+                            name="role"
+                            value="STUDENT"
+                            {% if form.role.value == "STUDENT" %}checked{% endif %}
+                        >
+                        <span>Mahasiswa</span>
+                    </label>
+
+                    <label class="role-option">
+                        <input
+                            type="radio"
+                            name="role"
+                            value="TEACHER"
+                            {% if form.role.value == "TEACHER" %}checked{% endif %}
+                        >
+                        <span>Dosen</span>
+                    </label>
+
+                </div>
+
+                {{ form.role.errors }}
+
+                <div class="field">
+                    <label id="identifier-label" for="id_username">
+                        NIM
+                    </label>
+
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </div>
+
+                <div class="field">
+                    <label for="id_password">Password</label>
+
+                    {{ form.password }}
+                    {{ form.password.errors }}
+
+                    <div class="helper-text" id="helper-text">
+                        Masukkan NIM dan password yang telah terdaftar.
+                    </div>
+                </div>
+
+                <button type="submit" class="login-button">
+                    Masuk
+                </button>
+
+            </form>
+
+            <div class="register-row" id="register-row">
+                <span>Belum memiliki akun?</span>
+
+                <a href="{% url 'accounts:register' %}">
+                    Daftar Akun
+                </a>
+            </div>
+
+            <p class="preview-note">
+                Pratinjau alur menggunakan contoh akun kampus.
+            </p>
+
+            <div class="security-note">
+                Akses aman · Presensi perkuliahan yang lebih sederhana
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script>
+    function updateRole() {
+        const selectedRole = document.querySelector(
+            'input[name="role"]:checked'
+        );
+
+        if (!selectedRole) return;
+
+        const isStudent = selectedRole.value === "STUDENT";
+
+        const label = document.getElementById("identifier-label");
+        const input = document.getElementById("id_username");
+        const helper = document.getElementById("helper-text");
+        const registerRow = document.getElementById("register-row");
+
+        if (isStudent) {
+            label.textContent = "NIM";
+            input.placeholder = "Masukkan NIM";
+            helper.textContent =
+                "Masukkan NIM dan password yang telah terdaftar.";
+            registerRow.style.display = "flex";
+        } else {
+            label.textContent = "Email / Username";
+            input.placeholder = "Masukkan email atau username";
+            helper.textContent =
+                "Gunakan email atau username dan password akun dosen.";
+            registerRow.style.display = "none";
+        }
+    }
+
+    document.querySelectorAll('input[name="role"]').forEach(function (radio) {
+        radio.addEventListener("change", updateRole);
+    });
+
+    updateRole();
+</script>
+
+</body>
+</html>
