@@ -1,501 +1,256 @@
-{% load static %}
 
+{% load static %}
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIHADIR | Sistem Informasi Kehadiran Digital</title>
+
+    <meta name="theme-color" content="#102a64">
+
+    <title>Masuk | SIHADIR</title>
 
     <link
         rel="icon"
         type="image/png"
         href="{% static 'images/sihadir2.png' %}"
     >
-    <style>
-        * {
-            box-sizing: border-box;
-        }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #1f2937;
-        }
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-ui.css' %}"
+    >
 
-        .login-layout {
-            min-height: 100vh;
-            display: grid;
-            grid-template-columns: 0.9fr 1.1fr;
-        }
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-polish.css' %}"
+    >
 
-        .brand-panel {
-            background: linear-gradient(145deg, #1e40af, #0f766e);
-            color: white;
-            padding: 42px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .brand-logo {
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-
-        .brand-content {
-            max-width: 470px;
-        }
-
-        .brand-eyebrow {
-            font-size: 11px;
-            letter-spacing: 1.3px;
-            opacity: 0.8;
-        }
-
-        .brand-content h1 {
-            font-size: 38px;
-            line-height: 1.25;
-            margin: 20px 0;
-        }
-
-        .brand-description {
-            max-width: 420px;
-            font-size: 14px;
-            line-height: 1.8;
-            opacity: 0.9;
-        }
-
-        .preview-card {
-            background: white;
-            color: #1f2937;
-            border-radius: 12px;
-            padding: 23px;
-            margin-top: 35px;
-        }
-
-        .preview-label {
-            color: #6b7280;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .preview-card h2 {
-            font-size: 21px;
-            margin: 13px 0 7px;
-        }
-
-        .preview-card p {
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        .preview-status {
-            display: inline-block;
-            margin-top: 8px;
-            padding: 7px 12px;
-            border-radius: 20px;
-            background: #dcfce7;
-            color: #166534;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .brand-footer {
-            font-size: 12px;
-            line-height: 1.8;
-            opacity: 0.8;
-        }
-
-        .login-panel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 25px;
-        }
-
-        .login-content {
-            width: 100%;
-            max-width: 430px;
-            background: white;
-            padding: 35px;
-            border-radius: 13px;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
-        }
-
-        .eyebrow {
-            color: #2563eb;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .login-content h2 {
-            font-size: 27px;
-            margin: 14px 0 8px;
-        }
-
-        .subtitle {
-            color: #6b7280;
-            font-size: 13px;
-            line-height: 1.7;
-            margin-bottom: 25px;
-        }
-
-        .role-tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            background: #f3f4f6;
-            padding: 4px;
-            border-radius: 8px;
-            margin-bottom: 23px;
-        }
-
-        .role-option {
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .role-option input {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .role-option span {
-            display: block;
-            padding: 11px;
-            border-radius: 6px;
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        .role-option input:checked + span {
-            background: white;
-            color: #1d4ed8;
-            font-weight: bold;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-        }
-
-        .field {
-            margin-bottom: 19px;
-        }
-
-        .field label {
-            display: block;
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .field input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 7px;
-            font-size: 14px;
-        }
-
-        .field input:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-        }
-
-        .helper-text {
-            color: #9ca3af;
-            font-size: 11px;
-            margin-top: 8px;
-        }
-
-        .login-button {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 7px;
-            background: #2563eb;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .login-button:hover {
-            background: #1d4ed8;
-        }
-
-        .register-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-            font-size: 13px;
-            margin-top: 22px;
-        }
-
-        .register-row a {
-            color: #2563eb;
-            font-weight: bold;
-        }
-
-        .errorlist {
-            color: #dc2626;
-            font-size: 12px;
-            padding-left: 18px;
-        }
-
-        .login-error {
-            background: #fee2e2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
-            padding: 12px;
-            border-radius: 7px;
-            font-size: 13px;
-            margin-bottom: 18px;
-        }
-
-        @media (max-width: 850px) {
-            .login-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .brand-panel {
-                padding: 28px;
-            }
-
-            .brand-content h1 {
-                font-size: 29px;
-            }
-
-            .preview-card {
-                margin-top: 22px;
-            }
-
-            .brand-footer {
-                margin-top: 30px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .brand-panel {
-                padding: 22px;
-            }
-
-            .login-panel {
-                padding: 20px 13px;
-            }
-
-            .login-content {
-                padding: 24px 19px;
-            }
-
-            .login-content h2 {
-                font-size: 23px;
-            }
-        }
-
-        .brand-logo img {
-            display: block;
-            width: 180px;
-            max-width: 100%;
-            height: auto;
-            object-fit: contain;
-        }
-
-        /* TOMBOL TAMPILKAN PASSWORD */
-
-        .password-input-wrap {
-            position: relative;
-            width: 100%;
-        }
-
-        .password-input-wrap input {
-            width: 100%;
-            padding-right: 48px !important;
-        }
-
-        .password-visibility-toggle {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 32px;
-            height: 32px;
-            padding: 5px;
-            border: none;
-            border-radius: 5px;
-            background: transparent;
-            color: #6b7280;
-            cursor: pointer;
-        }
-
-        .password-visibility-toggle:hover {
-            background: #f3f4f6;
-            color: #2563eb;
-        }
-
-        .password-visibility-toggle svg {
-            width: 19px;
-            height: 19px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 1.8;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-    </style>
 </head>
 
-<body>
 
-<div class="login-layout">
+<body class="auth-page">
 
-    <section class="brand-panel">
+<div class="auth-shell">
 
-        <div class="brand-logo">
+
+    <!-- VISUAL PANEL -->
+
+    <section class="auth-visual">
+
+        <div class="auth-brand">
+
             <img
                 src="{% static 'images/sihadir1.png' %}"
                 alt="SIHADIR"
             >
+
+            <span class="auth-brand-caption">
+                SISTEM INFORMASI KEHADIRAN DIGITAL
+            </span>
+
         </div>
 
-        <div class="brand-content">
 
-            <div class="brand-eyebrow">
-                PRESENSI PERKULIAHAN, LEBIH TERHUBUNG
+        <div class="auth-visual-main">
+
+            <div class="auth-eyebrow">
+                <span class="auth-eyebrow-dot"></span>
+                RUANG AKADEMIK DIGITAL
             </div>
 
-            <h1>Setiap kehadiran, satu langkah maju.</h1>
+            <h1 class="auth-visual-title">
+                Kehadiran lebih tertata, perkuliahan lebih terpantau.
+            </h1>
 
-            <p class="brand-description">
-                Kelola kelas, catat kehadiran, dan pantau
-                aktivitas perkuliahan melalui satu sistem
-                yang terintegrasi.
+            <p class="auth-visual-description">
+                Kelola kelas, catat kehadiran, dan pantau riwayat
+                presensi perkuliahan melalui satu sistem.
             </p>
 
-            <div class="preview-card">
 
-                <div class="preview-label">
-                    AKTIVITAS PERKULIAHAN
+            <div class="auth-process-strip">
+
+                <div class="auth-process-item">
+                    <span>01</span>
+                    <strong>Gabung Kelas</strong>
                 </div>
 
-                <h2>Presensi Perkuliahan</h2>
+                <div class="auth-process-divider"></div>
 
-                <p>
-                    Seluruh catatan kehadiran tersimpan
-                    dalam satu tempat.
-                </p>
+                <div class="auth-process-item">
+                    <span>02</span>
+                    <strong>Isi Presensi</strong>
+                </div>
 
-                <span class="preview-status">
-                    ✓ Kehadiran tercatat
-                </span>
+                <div class="auth-process-divider"></div>
+
+                <div class="auth-process-item">
+                    <span>03</span>
+                    <strong>Pantau Riwayat</strong>
+                </div>
 
             </div>
 
         </div>
 
-        <div class="brand-footer">
-            Satu kode. Satu kelas. Semua tercatat.
+
+        <div class="auth-visual-footer">
+            Satu kelas. Satu kode. Semua tercatat.
             <br>
-            © 2026 Sistem Informasi Presensi Perkuliahan
+            © 2026 SIHADIR
         </div>
 
     </section>
 
-    <section class="login-panel">
 
-        <div class="login-content">
+    <!-- FORM PANEL -->
 
-            <div class="eyebrow">
+    <section class="auth-form-panel">
+
+        <div class="auth-card">
+
+            <div class="auth-kicker">
                 SELAMAT DATANG KEMBALI
             </div>
 
-            <h2>Masuk ke akun Anda</h2>
+            <h2 class="auth-heading">
+                Masuk ke akun Anda
+            </h2>
 
-            <p class="subtitle">
-                Gunakan NIM atau identitas akun yang telah terdaftar.
+            <p class="auth-description">
+                Pilih peran dan gunakan identitas akun yang telah terdaftar.
             </p>
 
+
             {% if form.non_field_errors %}
-                <div class="login-error">
+
+                <div class="auth-error-box" role="alert">
                     {{ form.non_field_errors }}
                 </div>
+
             {% endif %}
 
-            <form method="POST">
+
+            <form
+                method="POST"
+                action="{% url 'accounts:login' %}"
+                autocomplete="on"
+            >
+
                 {% csrf_token %}
 
-                <div class="role-tabs">
 
-                    <label class="role-option">
+                <div class="auth-role-switch">
+
+                    <label class="auth-role-option">
+
                         <input
                             type="radio"
                             name="role"
                             value="STUDENT"
                             {% if form.role.value == "STUDENT" %}checked{% endif %}
                         >
+
                         <span>Mahasiswa</span>
+
                     </label>
 
-                    <label class="role-option">
+
+                    <label class="auth-role-option">
+
                         <input
                             type="radio"
                             name="role"
                             value="TEACHER"
                             {% if form.role.value == "TEACHER" %}checked{% endif %}
                         >
+
                         <span>Dosen</span>
+
                     </label>
 
                 </div>
 
+
                 {{ form.role.errors }}
 
-                <div class="field">
+
+                <div class="auth-field">
 
                     <label id="identifier-label" for="id_username">
                         NIM
                     </label>
 
                     {{ form.username }}
+
                     {{ form.username.errors }}
+
+                    <div class="auth-helper" id="helper-text">
+                        Masukkan NIM dan password akun mahasiswa.
+                    </div>
 
                 </div>
 
-                <div class="field">
+
+                <div class="auth-field">
 
                     <label for="id_password">
                         Password
                     </label>
 
                     {{ form.password }}
-                    {{ form.password.errors }}
 
-                    <div class="helper-text" id="helper-text">
-                        Masukkan NIM dan password yang telah terdaftar.
-                    </div>
+                    {{ form.password.errors }}
 
                 </div>
 
-                <button type="submit" class="login-button">
-                    Masuk
+
+                <button type="submit" class="auth-submit">
+
+                    <span>Masuk ke SIHADIR</span>
+
+                    <svg class="icon" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M5 12h14"/>
+                        <path d="m12 5 7 7-7 7"/>
+                    </svg>
+
                 </button>
 
             </form>
 
-            <div class="register-row" id="register-row">
-                <span>Belum memiliki akun?</span>
+
+            <div class="auth-alternative" id="register-row">
+
+                Belum memiliki akun?
 
                 <a href="{% url 'accounts:register' %}">
                     Daftar sebagai mahasiswa
                 </a>
+
+            </div>
+
+
+            <div class="auth-security-note">
+
+                <svg class="icon" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+
+                <span>
+                    Gunakan akun milik sendiri. Jangan membagikan
+                    identitas akun dan password kepada orang lain.
+                </span>
+
             </div>
 
         </div>
@@ -504,53 +259,99 @@
 
 </div>
 
+
+<script src="{% static 'js/password-toggle.js' %}"></script>
+
 <script>
+(function () {
+
+    const roleInputs = document.querySelectorAll(
+        'input[name="role"]'
+    );
+
+    const identifierLabel =
+        document.getElementById("identifier-label");
+
+    const identifierInput =
+        document.getElementById("id_username");
+
+    const helperText =
+        document.getElementById("helper-text");
+
+    const registerRow =
+        document.getElementById("register-row");
+
+
     function updateRole() {
 
         const selectedRole = document.querySelector(
             'input[name="role"]:checked'
         );
 
-        if (!selectedRole) return;
+        if (!selectedRole) {
+            return;
+        }
 
         const isStudent = selectedRole.value === "STUDENT";
 
-        const label = document.getElementById("identifier-label");
-        const input = document.getElementById("id_username");
-        const helper = document.getElementById("helper-text");
-        const registerRow = document.getElementById("register-row");
-
         if (isStudent) {
 
-            label.textContent = "NIM";
-            input.placeholder = "Masukkan NIM";
+            identifierLabel.textContent = "NIM";
 
-            helper.textContent =
+            identifierInput.placeholder = "Masukkan NIM";
+            identifierInput.autocomplete = "username";
+
+            helperText.textContent =
                 "Masukkan NIM dan password akun mahasiswa.";
 
-            registerRow.style.display = "flex";
+            registerRow.style.display = "block";
 
         } else {
 
-            label.textContent = "Email / Username";
-            input.placeholder = "Masukkan email atau username";
+            identifierLabel.textContent = "Email / Username";
 
-            helper.textContent =
+            identifierInput.placeholder =
+                "Masukkan email atau username dosen";
+
+            identifierInput.autocomplete = "username";
+
+            helperText.textContent =
                 "Gunakan email atau username akun dosen.";
 
             registerRow.style.display = "none";
 
         }
+
     }
 
-    document.querySelectorAll('input[name="role"]').forEach(
-        radio => radio.addEventListener("change", updateRole)
+
+    roleInputs.forEach(function(radio) {
+
+        radio.addEventListener("change", updateRole);
+
+    });
+
+
+    const selected = document.querySelector(
+        'input[name="role"]:checked'
     );
 
-    updateRole();
-</script>
+    if (!selected) {
 
-<script src="{% static 'js/password-toggle.js' %}"></script>
+        const studentOption = document.querySelector(
+            'input[name="role"][value="STUDENT"]'
+        );
+
+        if (studentOption) {
+            studentOption.checked = true;
+        }
+
+    }
+
+    updateRole();
+
+})();
+</script>
 
 </body>
 </html>

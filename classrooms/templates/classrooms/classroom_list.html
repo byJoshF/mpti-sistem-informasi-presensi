@@ -1,30 +1,57 @@
+
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Daftar Kelas{% endblock %}
+{% block title %}Daftar Kelas | SIHADIR{% endblock %}
+{% block page_label %}Daftar Kelas{% endblock %}
 
-{% block content %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sihadir-polish.css' %}">
 
 <style>
+    .teacher-class-list-page {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
     .class-page-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end;
         gap: 15px;
-        margin-bottom: 23px;
+        margin-bottom: 2px;
     }
 
     .class-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2,minmax(0,1fr));
         gap: 16px;
     }
 
     .class-card,
     .empty-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 9px;
+        min-width: 0;
         padding: 21px;
+
+        background: #ffffff;
+        border: 1px solid #e2eaf4;
+        border-radius: 15px;
+
+        box-shadow: 0 5px 17px rgba(22,61,116,.04);
+    }
+
+    .class-card {
+        transition:
+            transform .18s ease,
+            border-color .18s ease,
+            box-shadow .18s ease;
+    }
+
+    .class-card:hover {
+        border-color: #c8dcf5;
+        box-shadow: 0 10px 24px rgba(22,61,116,.07);
+        transform: translateY(-2px);
     }
 
     .class-card[hidden],
@@ -33,23 +60,34 @@
     }
 
     .class-card h2 {
-        margin-top: 0;
+        margin: 0 0 10px;
+        color: #102a64;
+        font-size: 17px;
+        font-weight: 850;
         overflow-wrap: anywhere;
     }
 
     .class-description {
-        color: #6b7280;
-        line-height: 1.5;
-        font-size: 14px;
+        color: #6b7d96;
+        line-height: 1.65;
+        font-size: 11px;
+        overflow-wrap: anywhere;
     }
 
     .join-code {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+
         padding: 9px 13px;
-        border-radius: 6px;
-        background: #eff6ff;
-        color: #1d4ed8;
-        font-weight: bold;
+
+        border-radius: 9px;
+        background: #edf4ff;
+        border: 1px solid #dceaff;
+
+        color: #1559c9;
+
+        font-size: 14px;
+        font-weight: 900;
         letter-spacing: 2px;
     }
 
@@ -60,18 +98,41 @@
         margin-top: 17px;
     }
 
+    .class-actions .app-button {
+        min-height: 38px;
+        padding: 9px 12px;
+        font-size: 10px;
+    }
+
+    .class-actions form {
+        margin: 0;
+    }
+
     .search-form {
         display: flex;
         gap: 9px;
-        margin-bottom: 12px;
+        margin-bottom: 0;
     }
 
     .search-form input {
         flex: 1;
         min-width: 0;
-        padding: 11px;
-        border: 1px solid #d1d5db;
-        border-radius: 7px;
+        min-height: 44px;
+        padding: 11px 13px;
+
+        color: #263f62;
+        background: #ffffff;
+
+        border: 1px solid #d8e4f2;
+        border-radius: 10px;
+
+        font-size: 12px;
+    }
+
+    .search-form input:focus {
+        outline: none;
+        border-color: #80b2ef;
+        box-shadow: 0 0 0 3px rgba(36,130,237,.1);
     }
 
     .search-form [hidden] {
@@ -79,198 +140,287 @@
     }
 
     .search-hint {
-        color: #6b7280;
-        font-size: 12px;
-        margin: 0 0 14px;
+        color: #8291a5;
+        font-size: 10px;
+        margin: -12px 0 0;
     }
 
     .empty-card {
         text-align: center;
-        padding: 35px 20px;
+        padding: 38px 22px;
         color: #6b7280;
-        grid-column: 1 / -1;
+        grid-column: 1/-1;
+    }
+
+    .empty-card h3 {
+        margin: 0 0 7px;
+        color: #102a64;
+        font-size: 17px;
+    }
+
+    .empty-card p {
+        max-width: 380px;
+        margin: 0 auto;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.7;
     }
 
     .result-count {
-        color: #6b7280;
-        font-size: 13px;
-        margin-bottom: 14px;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        margin: -8px 0 0;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 760px) {
         .class-grid {
             grid-template-columns: 1fr;
         }
     }
 
-    @media (max-width: 550px) {
+    @media (max-width: 600px) {
         .class-page-header {
-            align-items: flex-start;
+            align-items: stretch;
             flex-direction: column;
+        }
+
+        .class-page-header > button {
+            width: 100%;
         }
 
         .search-form {
             flex-wrap: wrap;
         }
+
+        .search-form input {
+            flex-basis: 100%;
+        }
+
+        .search-form button {
+            flex: 1;
+        }
+
+        .class-card {
+            padding: 17px;
+        }
     }
 </style>
+{% endblock %}
 
 
-<div class="class-page-header">
+{% block content %}
 
-    <div class="page-heading">
-        <h1>Daftar Kelas</h1>
-        <p>Kelola kelas perkuliahan yang kamu ampu.</p>
+<div class="teacher-class-list-page">
+
+    <!-- KEMBALI KE BERANDA -->
+
+    <div class="teacher-page-toolbar">
+
+        <a
+            href="{% url 'home' %}"
+            class="glass-back-link"
+        >
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+                <path d="M19 12H5"/>
+                <path d="m12 19-7-7 7-7"/>
+            </svg>
+
+            Kembali ke Beranda
+        </a>
+
     </div>
 
-    <button
-        type="button"
-        class="app-button"
-        data-modal-url="{% url 'classrooms:classroom_create' %}?modal=1"
+
+    <!-- HEADER -->
+
+    <div class="class-page-header">
+
+        <div class="page-heading">
+            <h1>Daftar Kelas</h1>
+            <p>
+                Kelola kelas perkuliahan yang kamu ampu.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="app-button"
+            data-modal-url="{% url 'classrooms:classroom_create' %}?modal=1"
+        >
+            <svg class="icon">
+                <use href="#icon-plus"></use>
+            </svg>
+            Buat Kelas
+        </button>
+
+    </div>
+
+
+    <!-- PENCARIAN LANGSUNG -->
+
+    <form
+        method="GET"
+        action="{% url 'classrooms:classroom_list' %}"
+        class="search-form"
+        id="classSearchForm"
     >
-        + Buat Kelas
-    </button>
 
-</div>
-
-
-<form
-    method="GET"
-    action="{% url 'classrooms:classroom_list' %}"
-    class="search-form"
-    id="classSearchForm"
->
-    <input
-        type="search"
-        name="q"
-        id="classSearchInput"
-        value="{{ search_query }}"
-        placeholder="Cari nama kelas, deskripsi, atau kode gabung..."
-        autocomplete="off"
-        aria-label="Cari kelas"
-    >
-
-    <button
-        type="submit"
-        class="app-button"
-        id="classSearchSubmit"
-    >
-        Cari
-    </button>
-
-    <button
-        type="button"
-        class="app-button secondary"
-        id="clearClassSearch"
-        {% if not search_query %}hidden{% endif %}
-    >
-        Hapus
-    </button>
-</form>
-
-<p class="search-hint">
-    Hasil akan disaring langsung saat kamu mengetik.
-</p>
-
-<p class="result-count" id="classResultCount">
-    Ditemukan {{ classrooms|length }} kelas.
-</p>
-
-
-<div class="class-grid" id="classGrid">
-
-    {% for classroom in classrooms %}
-
-        <div
-            class="class-card"
-            data-search-text="{{ classroom.name }} {{ classroom.description|default:'' }} {{ classroom.join_code }}"
+        <input
+            type="search"
+            name="q"
+            id="classSearchInput"
+            value="{{ search_query }}"
+            placeholder="Cari nama kelas, deskripsi, atau kode gabung..."
+            autocomplete="off"
+            aria-label="Cari kelas"
         >
 
-            <h2>{{ classroom.name }}</h2>
+        <button
+            type="submit"
+            class="app-button"
+            id="classSearchSubmit"
+        >
+            Cari
+        </button>
 
-            <p class="class-description">
-                {{ classroom.description|default:"Tidak ada deskripsi kelas." }}
-            </p>
+        <button
+            type="button"
+            class="app-button secondary"
+            id="clearClassSearch"
+            {% if not search_query %}hidden{% endif %}
+        >
+            Hapus
+        </button>
 
-            <p>Kode Gabung:</p>
+    </form>
 
-            <div class="join-code">
-                {{ classroom.join_code }}
-            </div>
 
-            <p class="class-description">
-                Dibuat:
-                {{ classroom.created_at|date:"d M Y, H:i" }}
-            </p>
+    <p class="search-hint">
+        Hasil akan disaring langsung saat kamu mengetik.
+    </p>
 
-            <div class="class-actions">
+    <p class="result-count" id="classResultCount">
+        Ditemukan {{ classrooms|length }} kelas.
+    </p>
 
-                <a
-                    href="{% url 'classrooms:classroom_detail' classroom.pk %}"
-                    class="app-button"
-                >
-                    Kelola Kelas
-                </a>
 
-                <button
-                    type="button"
-                    class="app-button secondary"
-                    data-modal-url="{% url 'classrooms:classroom_edit' classroom.pk %}?modal=1"
-                >
-                    Edit
-                </button>
+    <!-- KARTU KELAS -->
 
-                {% if not classroom.has_attendance_history %}
+    <div class="class-grid" id="classGrid">
 
-                    <form
-                        method="POST"
-                        action="{% url 'classrooms:classroom_delete' classroom.pk %}"
-                        data-ajax-form
-                        data-confirm="Yakin ingin menghapus kelas {{ classroom.name }}? Tindakan ini tidak dapat dibatalkan."
-                    >
-                        {% csrf_token %}
+        {% for classroom in classrooms %}
 
-                        <button
-                            type="submit"
-                            class="app-button danger"
-                        >
-                            Hapus
-                        </button>
-                    </form>
+            <article
+                class="class-card"
+                data-search-text="{{ classroom.name }} {{ classroom.description|default:'' }} {{ classroom.join_code }}"
+            >
 
-                {% endif %}
+                <h2>{{ classroom.name }}</h2>
 
-            </div>
-
-            {% if classroom.has_attendance_history %}
                 <p class="class-description">
-                    Kelas memiliki riwayat presensi sehingga tidak dapat dihapus.
+                    {{ classroom.description|default:"Tidak ada deskripsi kelas." }}
                 </p>
-            {% endif %}
 
-        </div>
 
-    {% empty %}
+                <div class="class-description">
+                    Kode Gabung
+                </div>
 
-        <div class="empty-card" id="serverEmptyState">
-            <h3>
-                {% if search_query %}
-                    Kelas Tidak Ditemukan
-                {% else %}
-                    Belum Ada Kelas
+                <div class="join-code">
+                    {{ classroom.join_code }}
+                </div>
+
+
+                <p class="class-description">
+                    Dibuat:
+                    {{ classroom.created_at|date:"d M Y, H:i" }}
+                </p>
+
+
+                <div class="class-actions">
+
+                    <a
+                        href="{% url 'classrooms:classroom_detail' classroom.pk %}"
+                        class="app-button"
+                    >
+                        Kelola Kelas
+                    </a>
+
+
+                    <button
+                        type="button"
+                        class="app-button secondary"
+                        data-modal-url="{% url 'classrooms:classroom_edit' classroom.pk %}?modal=1"
+                    >
+                        Edit
+                    </button>
+
+
+                    {% if not classroom.has_attendance_history %}
+
+                        <form
+                            method="POST"
+                            action="{% url 'classrooms:classroom_delete' classroom.pk %}"
+                            data-ajax-form
+                            data-confirm="Yakin ingin menghapus kelas {{ classroom.name }}? Tindakan ini tidak dapat dibatalkan."
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="app-button danger"
+                            >
+                                Hapus
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if classroom.has_attendance_history %}
+
+                    <p class="class-description">
+                        Kelas memiliki riwayat presensi sehingga tidak dapat dihapus.
+                    </p>
+
                 {% endif %}
-            </h3>
 
-            <p>
-                {% if search_query %}
-                    Coba gunakan kata kunci lain.
-                {% else %}
-                    Silakan buat kelas pertama kamu.
-                {% endif %}
-            </p>
-        </div>
+            </article>
 
-    {% endfor %}
+        {% empty %}
+
+            <div class="empty-card" id="serverEmptyState">
+
+                <h3>
+                    {% if search_query %}
+                        Kelas Tidak Ditemukan
+                    {% else %}
+                        Belum Ada Kelas
+                    {% endif %}
+                </h3>
+
+                <p>
+                    {% if search_query %}
+                        Coba gunakan kata kunci lain.
+                    {% else %}
+                        Silakan buat kelas pertama kamu.
+                    {% endif %}
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
 
 </div>
 
@@ -289,7 +439,7 @@
     const submitButton = document.getElementById("classSearchSubmit");
     const clearButton = document.getElementById("clearClassSearch");
 
-    if (!form || !input || !grid || !countLabel) {
+    if (!form || !input || !grid || !countLabel || !clearButton) {
         return;
     }
 
@@ -299,24 +449,16 @@
 
     const serverEmptyState = document.getElementById("serverEmptyState");
 
-    // Jika server mengembalikan halaman tanpa kartu kelas,
-    // pertahankan pencarian GET sebagai fallback.
     if (cards.length === 0) {
-
-        if (clearButton) {
-            clearButton.addEventListener("click", function () {
-                window.location.assign(form.action);
-            });
-        }
-
         return;
     }
 
-    // Setelah JavaScript aktif, pencarian langsung dilakukan
-    // di browser tanpa mengirim request baru ke Django.
-    if (submitButton) {
-        submitButton.hidden = true;
-    }
+
+    // Pencarian dilakukan di browser, tanpa request baru
+    // ke Django setiap kali pengguna mengetik.
+
+    submitButton.hidden = true;
+
 
     const noResults = document.createElement("div");
 
@@ -348,7 +490,7 @@
 
         let visibleCount = 0;
 
-        cards.forEach(function (card) {
+        cards.forEach(function(card) {
 
             const searchableText = normalize(
                 card.dataset.searchText || card.textContent
@@ -367,8 +509,10 @@
 
         });
 
+
         countLabel.textContent =
             `Ditemukan ${visibleCount} kelas.`;
+
 
         noResults.hidden = visibleCount !== 0;
 
@@ -381,7 +525,7 @@
     }
 
 
-    form.addEventListener("submit", function (event) {
+    form.addEventListener("submit", function(event) {
 
         event.preventDefault();
 
@@ -393,16 +537,15 @@
     input.addEventListener("input", filterClasses);
 
 
-    clearButton.addEventListener("click", function () {
+    clearButton.addEventListener("click", function() {
 
-        // Muat ulang tanpa parameter q agar seluruh kelas tampil kembali,
-        // termasuk jika halaman sebelumnya dibuka dari URL pencarian lama.
-        window.location.assign(form.action);
+        input.value = "";
+        filterClasses();
+        input.focus();
 
     });
 
 
-    // Terapkan juga pada kata kunci yang sudah ada di URL.
     filterClasses();
 
 })();

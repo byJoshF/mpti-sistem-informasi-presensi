@@ -1,236 +1,287 @@
 
 {% extends "base.html" %}
 
-{% block title %}Beranda Mahasiswa{% endblock %}
+{% block title %}Dashboard Mahasiswa | SIHADIR{% endblock %}
+
+{% block page_label %}Dashboard Mahasiswa{% endblock %}
+
 
 {% block content %}
 
-<div class="page-heading">
-    <h1>Selamat Datang, {{ user.full_name }}!</h1>
-    <p>
-        Berikut ringkasan kelas dan aktivitas presensimu.
-    </p>
-</div>
 
-<style>
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-        margin-bottom: 28px;
-    }
+<!-- ======================================================
+     WELCOME HERO
+     ====================================================== -->
 
-    .stat-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 9px;
-        padding: 21px;
-    }
+<section class="dashboard-hero">
 
-    .stat-label {
-        color: #6b7280;
-        font-size: 14px;
-    }
+    <div class="hero-copy">
 
-    .stat-value {
-        display: block;
-        font-size: 29px;
-        font-weight: bold;
-        margin-top: 8px;
-    }
-
-    .section-heading {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 15px;
-    }
-
-    .section-heading h2 {
-        font-size: 19px;
-        margin: 0;
-    }
-
-    .class-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-    }
-
-    .class-card,
-    .empty-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 9px;
-        padding: 20px;
-    }
-
-    .class-card h3 {
-        margin: 0 0 10px;
-        overflow-wrap: anywhere;
-    }
-
-    .class-teacher {
-        color: #6b7280;
-        font-size: 13px;
-        margin-bottom: 16px;
-    }
-
-    .session-label {
-        display: inline-block;
-        font-size: 11px;
-        font-weight: bold;
-        padding: 6px 9px;
-        border-radius: 20px;
-        margin-bottom: 13px;
-    }
-
-    .session-active {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .session-inactive {
-        background: #e5e7eb;
-        color: #4b5563;
-    }
-
-    .actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 16px;
-    }
-
-    .action-button {
-        display: inline-block;
-        padding: 10px 13px;
-        border-radius: 6px;
-        font-size: 13px;
-        background: #2563eb;
-        color: white;
-    }
-
-    .secondary-button {
-        background: #f3f4f6;
-        color: #374151;
-    }
-
-    .empty-card {
-        text-align: center;
-        padding: 32px 20px;
-        color: #6b7280;
-        grid-column: 1 / -1;
-    }
-
-    @media (max-width: 650px) {
-        .class-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 450px) {
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<div class="stats-grid">
-
-    <div class="stat-card">
-        <div class="stat-label">Kelas yang Diikuti</div>
-        <strong class="stat-value">{{ class_count }}</strong>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-label">Sesi Presensi Aktif</div>
-        <strong class="stat-value">{{ active_session_count }}</strong>
-    </div>
-
-</div>
-
-<div class="section-heading">
-    <h2>Kelas Saya</h2>
-    <a
-        href="{% url 'classrooms:student_classroom_list' %}"
-        class="action-button secondary-button"
-    >
-        Lihat Semua Kelas
-    </a>
-</div>
-
-<div class="class-grid">
-
-    {% for enrollment in enrollments %}
-
-        <div class="class-card">
-
-            {% if enrollment.has_active_session %}
-                <span class="session-label session-active">
-                    SESI PRESENSI AKTIF
-                </span>
-            {% else %}
-                <span class="session-label session-inactive">
-                    TIDAK ADA SESI AKTIF
-                </span>
-            {% endif %}
-
-            <h3>{{ enrollment.classroom.name }}</h3>
-
-            <div class="class-teacher">
-                Dosen: {{ enrollment.classroom.teacher.full_name }}
-            </div>
-
-            <div class="class-teacher">
-                Bergabung:
-                {{ enrollment.joined_at|date:"d M Y" }}
-            </div>
-
-            <div class="actions">
-
-                {% if enrollment.has_active_session %}
-                    <button
-                        type="button"
-                        class="action-button"
-                        data-modal-url="{% url 'attendance:student_submit' enrollment.classroom.pk %}?modal=1"
-                    >
-                        Isi Presensi
-                    </button>
-                {% endif %}
-
-                <a
-                    href="{% url 'classrooms:student_classroom_list' %}"
-                    class="action-button secondary-button"
-                >
-                    Buka Kelas Saya
-                </a>
-
-            </div>
-
+        <div class="hero-eyebrow">
+            RUANG MAHASISWA
         </div>
 
-    {% empty %}
+        <h1>
+            Halo, {{ user.full_name|default:user.username }}.
+        </h1>
 
-        <div class="empty-card">
-            <h3>Belum Mengikuti Kelas</h3>
+        <p>
+            Selamat datang di SIHADIR. Pantau kelas yang kamu ikuti
+            dan pastikan aktivitas presensimu tetap tercatat.
+        </p>
 
-            <p>
-                Kamu belum bergabung dengan kelas perkuliahan.
-            </p>
+        <div class="hero-actions">
+
+            <a
+                href="{% url 'classrooms:student_classroom_list' %}"
+                class="hero-button-primary"
+            >
+                Lihat Kelas Saya
+                <svg class="icon">
+                    <use href="#icon-arrow-right"></use>
+                </svg>
+            </a>
 
             <button
                 type="button"
-                class="app-button"
+                class="hero-button-glass"
                 data-modal-url="{% url 'classrooms:classroom_join' %}?modal=1"
             >
+                <svg class="icon">
+                    <use href="#icon-plus"></use>
+                </svg>
                 Gabung Kelas
             </button>
+
         </div>
 
-    {% endfor %}
+    </div>
 
-</div>
+
+    <div class="hero-visual" aria-hidden="true">
+
+        <div class="hero-visual-orbit"></div>
+
+        <div class="hero-visual-card">
+
+            <div class="hero-visual-caption">
+                SISTEM PRESENSI
+            </div>
+
+            <div class="hero-visual-line"></div>
+            <div class="hero-visual-line short"></div>
+
+            <div class="hero-visual-status">
+                <span class="hero-visual-status-dot"></span>
+                Aktivitas tercatat
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     SUMMARY
+     ====================================================== -->
+
+<section class="dashboard-stat-grid student-stats">
+
+    <article class="dashboard-stat-card">
+
+        <div class="stat-topline">
+
+            <span class="stat-card-label">
+                Kelas yang Diikuti
+            </span>
+
+            <span class="stat-icon">
+                <svg class="icon">
+                    <use href="#icon-book-open"></use>
+                </svg>
+            </span>
+
+        </div>
+
+        <strong class="stat-number">
+            {{ class_count }}
+        </strong>
+
+        <div class="stat-description">
+            Total kelas yang masih kamu ikuti.
+        </div>
+
+    </article>
+
+
+    <article class="dashboard-stat-card">
+
+        <div class="stat-topline">
+
+            <span class="stat-card-label">
+                Sesi Presensi Aktif
+            </span>
+
+            <span class="stat-icon green">
+                <svg class="icon">
+                    <use href="#icon-history"></use>
+                </svg>
+            </span>
+
+        </div>
+
+        <strong class="stat-number">
+            {{ active_session_count }}
+        </strong>
+
+        <div class="stat-description">
+            Sesi yang masih dapat diikuti saat ini.
+        </div>
+
+    </article>
+
+</section>
+
+
+<!-- ======================================================
+     CLASS LIST
+     ====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="dashboard-section-heading">
+
+        <div>
+            <h2>Kelas Saya</h2>
+            <p>Daftar kelas perkuliahan yang sedang kamu ikuti.</p>
+        </div>
+
+        <a
+            href="{% url 'classrooms:student_classroom_list' %}"
+            class="app-button secondary"
+        >
+            Lihat Semua
+        </a>
+
+    </div>
+
+
+    <div class="dashboard-class-grid">
+
+        {% for enrollment in enrollments %}
+
+            <article class="dashboard-class-card">
+
+                <div class="dashboard-class-top">
+
+                    <div style="min-width:0;">
+
+                        <h3 class="dashboard-class-title">
+                            {{ enrollment.classroom.name }}
+                        </h3>
+
+                        <div class="dashboard-class-subtitle">
+                            Dosen:
+                            {{ enrollment.classroom.teacher.full_name|default:enrollment.classroom.teacher.username }}
+                        </div>
+
+                    </div>
+
+
+                    {% if enrollment.has_active_session %}
+
+                        <span class="session-pill active">
+                            <span class="session-pill-dot"></span>
+                            Sesi Aktif
+                        </span>
+
+                    {% else %}
+
+                        <span class="session-pill inactive">
+                            Tidak Ada Sesi
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="dashboard-class-meta">
+
+                    <span>
+                        Bergabung:
+                        <strong>
+                            {{ enrollment.joined_at|date:"d M Y" }}
+                        </strong>
+                    </span>
+
+                </div>
+
+
+                <div class="dashboard-class-actions">
+
+                    {% if enrollment.has_active_session %}
+
+                        <button
+                            type="button"
+                            class="app-button"
+                            data-modal-url="{% url 'attendance:student_submit' enrollment.classroom.pk %}?modal=1"
+                        >
+                            Isi Presensi
+                        </button>
+
+                    {% endif %}
+
+
+                    <a
+                        href="{% url 'classrooms:student_classroom_list' %}"
+                        class="app-button secondary"
+                    >
+                        Detail Kelas
+                    </a>
+
+                </div>
+
+            </article>
+
+        {% empty %}
+
+            <div class="dashboard-empty">
+
+                <div class="dashboard-empty-icon">
+                    <svg class="icon" style="width:25px;height:25px">
+                        <use href="#icon-book-open"></use>
+                    </svg>
+                </div>
+
+                <h3>Belum Mengikuti Kelas</h3>
+
+                <p>
+                    Kamu belum bergabung ke kelas perkuliahan.
+                    Masukkan kode gabung yang diberikan dosen
+                    untuk mulai menggunakan SIHADIR.
+                </p>
+
+                <button
+                    type="button"
+                    class="app-button"
+                    data-modal-url="{% url 'classrooms:classroom_join' %}?modal=1"
+                >
+                    <svg class="icon" style="width:15px;height:15px">
+                        <use href="#icon-plus"></use>
+                    </svg>
+                    Gabung Kelas
+                </button>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
 
 {% endblock %}

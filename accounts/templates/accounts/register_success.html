@@ -1,123 +1,84 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIHADIR | Sistem Informasi Kehadiran Digital</title>
+
+    <meta name="theme-color" content="#102a64">
+
+    <title>Registrasi Berhasil | SIHADIR</title>
 
     <link
         rel="icon"
         type="image/png"
         href="{% static 'images/sihadir2.png' %}"
     >
-        <style>
-        * {
-            box-sizing: border-box;
-        }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #1f2937;
-        }
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-ui.css' %}"
+    >
 
-        .success-card {
-            width: 100%;
-            max-width: 480px;
-            background: white;
-            padding: 35px;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(15,23,42,0.04);
-        }
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-polish.css' %}"
+    >
 
-        .success-icon {
-            width: 62px;
-            height: 62px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            background: #dcfce7;
-            color: #15803d;
-            font-size: 30px;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        p {
-            color: #6b7280;
-            line-height: 1.6;
-            font-size: 14px;
-        }
-
-        .nim-box {
-            padding: 14px;
-            margin: 20px 0;
-            border-radius: 7px;
-            background: #eff6ff;
-            color: #1d4ed8;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 12px 18px;
-            border-radius: 7px;
-            background: #2563eb;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .button:hover {
-            background: #1d4ed8;
-        }
-    </style>
 </head>
 
-<body>
+<body class="auth-page">
 
-<div class="success-card">
+<div class="auth-shell" style="display:flex;align-items:center;justify-content:center;">
 
-    <div class="success-icon">✓</div>
+    <section class="auth-form-panel" style="width:100%;">
 
-    <h1>Pendaftaran Berhasil!</h1>
+        <div class="auth-success-card">
 
-    <p>
-        Selamat, {{ user.full_name }}.
-        Akun mahasiswa kamu berhasil dibuat.
-    </p>
+            <div class="auth-success-icon">
 
-    <div class="nim-box">
-        NIM: {{ user.username }}
-    </div>
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="m5 12 4 4L19 6"/>
+                </svg>
 
-    <p>
-        Silakan masuk menggunakan NIM dan password
-        yang telah kamu daftarkan.
-    </p>
+            </div>
 
-    <a
-        href="{% url 'accounts:login' %}"
-        class="button"
-    >
-        Masuk ke Akun
-    </a>
+
+            <div class="auth-kicker">
+                PENDAFTARAN SELESAI
+            </div>
+
+            <h1>Akun berhasil dibuat!</h1>
+
+            <p>
+                Selamat, {{ user.full_name }}.
+                Akun mahasiswa kamu sudah berhasil didaftarkan.
+            </p>
+
+
+            <div class="auth-nim-box">
+                NIM: {{ user.username }}
+            </div>
+
+
+            <p>
+                Gunakan NIM dan password yang telah didaftarkan
+                untuk masuk ke SIHADIR.
+            </p>
+
+
+            <a
+                href="{% url 'accounts:login' %}"
+                class="app-button"
+            >
+                Masuk ke SIHADIR
+            </a>
+
+        </div>
+
+    </section>
 
 </div>
 

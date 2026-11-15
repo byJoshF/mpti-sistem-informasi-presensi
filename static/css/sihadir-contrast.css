@@ -1,0 +1,708 @@
+
+/* ==========================================================
+   SIHADIR - CONTRAST & SURFACE SYSTEM
+   Stronger natural blue-navy boundaries
+   ========================================================== */
+
+:root {
+    --surface-border: #cbd9eb;
+    --surface-border-soft: #d8e3f1;
+    --surface-border-strong: #b8cbe3;
+
+    --surface-shadow:
+        0 1px 2px rgba(12, 35, 72, .075),
+        0 8px 22px rgba(16, 42, 100, .055),
+        inset 0 1px 0 rgba(255, 255, 255, .94);
+
+    --surface-shadow-hover:
+        0 0 0 1px rgba(21, 89, 201, .065),
+        0 10px 25px rgba(16, 42, 100, .085),
+        inset 0 1px 0 rgba(255, 255, 255, .96);
+}
+
+
+/* ==========================================================
+   GLOBAL APP SURFACES
+   ========================================================== */
+
+.app-sidebar,
+.app-topbar,
+.app-modal-panel {
+    border-color: var(--surface-border-soft);
+}
+
+.app-sidebar {
+    box-shadow: 2px 0 15px rgba(18, 45, 85, .025);
+}
+
+.app-topbar {
+    box-shadow: 0 3px 13px rgba(18, 45, 85, .035);
+}
+
+
+/* ==========================================================
+   OUTER CARDS & PANELS
+   ========================================================== */
+
+:is(
+    .card,
+    .class-card,
+    .empty-card,
+    .teacher-class-card,
+    .teacher-information-card,
+    .teacher-section-card,
+    .session-history-card,
+    .session-live-panel,
+    .session-create-panel,
+    .session-detail-hero,
+    .student-section-polished,
+    .student-class-card,
+    .dashboard-stat-card,
+    .dashboard-class-card,
+    .detail-stat-card,
+    .recap-filter-card,
+    .recap-result-card,
+    .history-header,
+    .summary-card,
+    .detail-card,
+    .student-history-class-card,
+    .student-history-header,
+    .student-history-summary,
+    .student-history-detail,
+    .student-attendance-score,
+    .student-history-meeting-card,
+    .student-history-empty
+) {
+    border: 1px solid var(--surface-border) !important;
+
+    box-shadow: var(--surface-shadow) !important;
+}
+
+
+/* Hover khusus kartu yang memang dapat dibuka */
+
+:is(
+    .class-card,
+    .teacher-class-card,
+    .dashboard-class-card,
+    .student-class-card,
+    .student-history-class-card
+):hover {
+    border-color: #9fbce0 !important;
+    box-shadow: var(--surface-shadow-hover) !important;
+}
+
+
+/* ==========================================================
+   INNER SUMMARY CARDS
+   ========================================================== */
+
+:is(
+    .summary-item,
+    .recap-stat,
+    .detail-stat-card,
+    .stat-card,
+    .student-history-stat
+) {
+    background: linear-gradient(
+        145deg,
+        #ffffff 0%,
+        #f6f9fe 100%
+    );
+
+    border: 1px solid #d3dfef;
+
+    box-shadow:
+        0 2px 6px rgba(19, 49, 92, .035),
+        inset 0 1px 0 rgba(255, 255, 255, .95);
+}
+
+
+/* Kartu statistik dengan penanda warna ringan */
+
+.student-history-stat {
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.student-history-stat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: #8ab3e8;
+}
+
+.student-history-stat.is-present::before {
+    background: #36a879;
+}
+
+.student-history-stat.is-permitted::before {
+    background: #4c91db;
+}
+
+.student-history-stat.is-sick::before {
+    background: #d59b42;
+}
+
+.student-history-stat.is-absent::before {
+    background: #d76a71;
+}
+
+.student-history-stat.is-pending::before {
+    background: #d8a33d;
+}
+
+
+/* ==========================================================
+   TABLE BOUNDARIES
+   ========================================================== */
+
+.table-wrapper,
+.recap-table-wrap,
+.student-history-table-wrap {
+    border: 1px solid #cbd9eb;
+    border-radius: 13px;
+    overflow: auto;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 2px 8px rgba(16, 42, 100, .035);
+}
+
+:is(
+    .table-wrapper,
+    .recap-table-wrap,
+    .student-history-table-wrap
+) table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+:is(
+    .table-wrapper,
+    .recap-table-wrap,
+    .student-history-table-wrap
+) th {
+    color: #405a7d;
+    background: #edf3fb;
+    border-bottom: 1px solid #cbd9eb;
+}
+
+:is(
+    .table-wrapper,
+    .recap-table-wrap,
+    .student-history-table-wrap
+) td {
+    border-bottom: 1px solid #e2eaf4;
+}
+
+:is(
+    .table-wrapper,
+    .recap-table-wrap,
+    .student-history-table-wrap
+) tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+:is(
+    .table-wrapper,
+    .recap-table-wrap,
+    .student-history-table-wrap
+) tbody tr:hover {
+    background: #f5f9ff;
+}
+
+
+/* ==========================================================
+   SECTION DIVIDERS
+   ========================================================== */
+
+:is(
+    .teacher-section-heading,
+    .student-section-heading-polished,
+    .dashboard-section-heading
+) {
+    border-bottom-color: #dce6f2;
+}
+
+:is(
+    .teacher-class-information,
+    .session-history-meta,
+    .session-detail-meta
+) {
+    border-color: #dce6f2;
+}
+
+
+/* ==========================================================
+   BLUE GLASS BACK BUTTON
+   ========================================================== */
+
+.glass-back-link {
+    border-color: #b9cde5;
+    box-shadow:
+        0 2px 5px rgba(13, 43, 86, .045),
+        inset 0 1px 0 rgba(255,255,255,.95);
+}
+
+.glass-back-link:hover {
+    border-color: #8eafe0;
+    box-shadow:
+        0 0 0 1px rgba(21,89,201,.07),
+        0 7px 17px rgba(21,89,201,.105),
+        inset 0 1px 0 rgba(255,255,255,.98);
+}
+
+
+/* ==========================================================
+   RECAP FILTER & RESULT SEPARATION
+   ========================================================== */
+
+.recap-filter-card,
+.recap-result-card {
+    background: #ffffff !important;
+    border-color: #cbd9eb !important;
+}
+
+.recap-stat {
+    border-color: #d3dfef;
+}
+
+.recap-table-wrap {
+    border-color: #c4d4e8;
+}
+
+
+/* ==========================================================
+   STATUS BADGES
+   Keep status colors distinct, soft and readable
+   ========================================================== */
+
+.status-present,
+.session-status-label.complete {
+    color: #176b45;
+    background: #e8f6ee;
+    border: 1px solid #c4e7d1;
+}
+
+.status-permitted,
+.session-status-label.ongoing {
+    color: #205ca4;
+    background: #eaf2ff;
+    border: 1px solid #cbdcf7;
+}
+
+.status-sick,
+.session-status-label.incomplete {
+    color: #91600f;
+    background: #fff5e3;
+    border: 1px solid #f0dfb8;
+}
+
+.status-absent,
+.session-status-label.cancelled {
+    color: #a92e3a;
+    background: #fff0f1;
+    border: 1px solid #f0cbd0;
+}
+
+.status-pending {
+    color: #91600f;
+    background: #fff5e3;
+    border: 1px solid #f0dfb8;
+}
+
+
+/* ==========================================================
+   STUDENT HISTORY LIST
+   ========================================================== */
+
+.student-history-class-card {
+    padding: 21px;
+    background: #ffffff;
+    border-radius: 16px;
+}
+
+.student-history-class-card:hover {
+    transform: translateY(-2px);
+}
+
+.student-history-class-card .student-history-card-divider {
+    height: 1px;
+    margin: 15px 0;
+    background: #dfe8f3;
+}
+
+.student-history-class-card .student-history-class-meta {
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.student-history-class-card .student-history-class-meta strong {
+    color: #334e70;
+}
+
+
+/* ==========================================================
+   STUDENT HISTORY DETAIL
+   ========================================================== */
+
+.student-history-header,
+.student-history-summary,
+.student-history-detail {
+    padding: 22px;
+    background: #ffffff;
+    border-radius: 16px;
+}
+
+.student-history-summary-heading {
+    margin-bottom: 16px;
+}
+
+.student-history-summary-heading h2,
+.student-history-detail-heading h2 {
+    margin: 0;
+    color: #102a64;
+    font-size: 17px;
+    font-weight: 850;
+}
+
+.student-history-summary-heading p,
+.student-history-detail-heading p {
+    margin: 5px 0 0;
+    color: #718198;
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+.student-history-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.student-history-stat {
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.student-history-stat-label {
+    display: block;
+    color: #70829a;
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.student-history-stat-value {
+    display: block;
+    margin-top: 8px;
+    color: #102a64;
+    font-size: 25px;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.student-history-score-panel {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    align-items: center;
+    gap: 20px;
+
+    padding: 20px;
+    margin-top: 18px;
+
+    background: linear-gradient(
+        125deg,
+        #f5f9ff,
+        #edf5ff
+    );
+
+    border: 1px solid #cbdcf1;
+    border-radius: 14px;
+}
+
+.student-history-score-label {
+    color: #59718f;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.student-history-score-description {
+    margin-top: 5px;
+    color: #7789a1;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.student-history-score-value {
+    color: #1559c9;
+    font-size: clamp(28px,4vw,39px);
+    font-weight: 900;
+    letter-spacing: -1.2px;
+    white-space: nowrap;
+}
+
+.student-history-progress-track {
+    height: 9px;
+    margin-top: 15px;
+    overflow: hidden;
+
+    background: #dce8f7;
+    border: 1px solid #ccdbed;
+    border-radius: 20px;
+}
+
+.student-history-progress-fill {
+    height: 100%;
+    min-width: 0;
+
+    background: linear-gradient(
+        90deg,
+        #1559c9,
+        #168de0 65%,
+        #22c5e8
+    );
+
+    border-radius: inherit;
+    transition: width .3s ease;
+}
+
+.student-history-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    padding: 14px 16px;
+    margin-top: 17px;
+
+    color: #805511;
+    background: #fff8e9;
+
+    border: 1px solid #ead7ad;
+    border-left: 4px solid #d5a044;
+    border-radius: 11px;
+
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.student-history-warning strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #82530c;
+}
+
+
+/* ==========================================================
+   STUDENT MEETING DETAIL
+   Desktop table
+   ========================================================== */
+
+.student-history-table-wrap {
+    margin-top: 17px;
+}
+
+.student-history-table {
+    width: 100%;
+    min-width: 650px;
+}
+
+.student-history-table th {
+    padding: 14px 15px;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.student-history-table td {
+    padding: 14px 15px;
+    color: #506781;
+    font-size: 11px;
+}
+
+.student-history-meeting-number {
+    color: #23456e;
+    font-weight: 850;
+}
+
+.student-history-mobile-list {
+    display: none;
+}
+
+
+/* ==========================================================
+   STUDENT HISTORY EMPTY STATE
+   ========================================================== */
+
+.student-history-empty {
+    padding: 35px 22px;
+    background: #ffffff;
+    border-style: dashed !important;
+    text-align: center;
+}
+
+.student-history-empty h3 {
+    margin: 0 0 7px;
+    color: #102a64;
+    font-size: 16px;
+}
+
+.student-history-empty p {
+    max-width: 390px;
+    margin: 0 auto 16px;
+    color: #718198;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+
+/* ==========================================================
+   RESPONSIVE STUDENT HISTORY
+   ========================================================== */
+
+@media (max-width: 760px) {
+
+    .student-history-stat-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+
+    .student-history-score-panel {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .student-history-score-value {
+        font-size: 34px;
+    }
+
+    .student-history-table-wrap {
+        display: none;
+    }
+
+    .student-history-mobile-list {
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+        margin-top: 16px;
+    }
+
+    .student-history-meeting-card {
+        padding: 16px;
+        background: #ffffff;
+        border-radius: 13px;
+    }
+
+    .student-history-meeting-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .student-history-meeting-title {
+        color: #23456e;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .student-history-meeting-date {
+        margin-top: 5px;
+        color: #8291a5;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .student-history-meeting-divider {
+        height: 1px;
+        margin: 13px 0;
+        background: #e2eaf4;
+    }
+
+    .student-history-meeting-submitted {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: #718198;
+        font-size: 10px;
+    }
+
+    .student-history-meeting-submitted strong {
+        color: #3b5779;
+        text-align: right;
+    }
+
+}
+
+@media (max-width: 430px) {
+
+    .student-history-header,
+    .student-history-summary,
+    .student-history-detail {
+        padding: 17px;
+        border-radius: 14px;
+    }
+
+    .student-history-stat-grid {
+        gap: 9px;
+    }
+
+    .student-history-stat {
+        padding: 13px;
+    }
+
+    .student-history-stat-value {
+        font-size: 23px;
+    }
+
+    .student-history-score-panel {
+        padding: 16px;
+    }
+
+    .student-history-empty {
+        padding: 27px 16px;
+    }
+
+}
+
+
+/* ==========================================================
+   NATURAL BORDER HIGHLIGHT
+   Subtle edge rather than excessive neon glow
+   ========================================================== */
+
+:is(
+    .teacher-class-card,
+    .teacher-section-card,
+    .teacher-information-card,
+    .session-history-card,
+    .session-live-panel,
+    .session-create-panel,
+    .session-detail-hero,
+    .student-section-polished,
+    .recap-filter-card,
+    .recap-result-card,
+    .student-class-card,
+    .student-history-class-card,
+    .student-history-header,
+    .student-history-summary,
+    .student-history-detail,
+    .student-history-meeting-card
+)::after {
+    pointer-events: none;
+}
+
+
+/* Keep focus boundaries visible */
+
+.teacher-action:focus-visible,
+.glass-back-link:focus-visible,
+.action-menu-trigger:focus-visible,
+.app-button:focus-visible {
+    outline: 3px solid rgba(21,89,201,.23);
+    outline-offset: 3px;
+}
