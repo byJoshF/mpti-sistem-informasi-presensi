@@ -1,0 +1,287 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard Mahasiswa | SIHADIR{% endblock %}
+
+{% block page_label %}Dashboard Mahasiswa{% endblock %}
+
+
+{% block content %}
+
+
+<!-- ======================================================
+     WELCOME HERO
+     ====================================================== -->
+
+<section class="dashboard-hero">
+
+    <div class="hero-copy">
+
+        <div class="hero-eyebrow">
+            RUANG MAHASISWA
+        </div>
+
+        <h1>
+            Halo, {{ user.full_name|default:user.username }}.
+        </h1>
+
+        <p>
+            Selamat datang di SIHADIR. Pantau kelas yang kamu ikuti
+            dan pastikan aktivitas presensimu tetap tercatat.
+        </p>
+
+        <div class="hero-actions">
+
+            <a
+                href="{% url 'classrooms:student_classroom_list' %}"
+                class="hero-button-primary"
+            >
+                Lihat Kelas Saya
+                <svg class="icon">
+                    <use href="#icon-arrow-right"></use>
+                </svg>
+            </a>
+
+            <button
+                type="button"
+                class="hero-button-glass"
+                data-modal-url="{% url 'classrooms:classroom_join' %}?modal=1"
+            >
+                <svg class="icon">
+                    <use href="#icon-plus"></use>
+                </svg>
+                Gabung Kelas
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-visual" aria-hidden="true">
+
+        <div class="hero-visual-orbit"></div>
+
+        <div class="hero-visual-card">
+
+            <div class="hero-visual-caption">
+                SISTEM PRESENSI
+            </div>
+
+            <div class="hero-visual-line"></div>
+            <div class="hero-visual-line short"></div>
+
+            <div class="hero-visual-status">
+                <span class="hero-visual-status-dot"></span>
+                Aktivitas tercatat
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     SUMMARY
+     ====================================================== -->
+
+<section class="dashboard-stat-grid student-stats">
+
+    <article class="dashboard-stat-card">
+
+        <div class="stat-topline">
+
+            <span class="stat-card-label">
+                Kelas yang Diikuti
+            </span>
+
+            <span class="stat-icon">
+                <svg class="icon">
+                    <use href="#icon-book-open"></use>
+                </svg>
+            </span>
+
+        </div>
+
+        <strong class="stat-number">
+            {{ class_count }}
+        </strong>
+
+        <div class="stat-description">
+            Total kelas yang masih kamu ikuti.
+        </div>
+
+    </article>
+
+
+    <article class="dashboard-stat-card">
+
+        <div class="stat-topline">
+
+            <span class="stat-card-label">
+                Sesi Presensi Aktif
+            </span>
+
+            <span class="stat-icon green">
+                <svg class="icon">
+                    <use href="#icon-history"></use>
+                </svg>
+            </span>
+
+        </div>
+
+        <strong class="stat-number">
+            {{ active_session_count }}
+        </strong>
+
+        <div class="stat-description">
+            Sesi yang masih dapat diikuti saat ini.
+        </div>
+
+    </article>
+
+</section>
+
+
+<!-- ======================================================
+     CLASS LIST
+     ====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="dashboard-section-heading">
+
+        <div>
+            <h2>Kelas Saya</h2>
+            <p>Daftar kelas perkuliahan yang sedang kamu ikuti.</p>
+        </div>
+
+        <a
+            href="{% url 'classrooms:student_classroom_list' %}"
+            class="app-button secondary"
+        >
+            Lihat Semua
+        </a>
+
+    </div>
+
+
+    <div class="dashboard-class-grid">
+
+        {% for enrollment in enrollments %}
+
+            <article class="dashboard-class-card">
+
+                <div class="dashboard-class-top">
+
+                    <div style="min-width:0;">
+
+                        <h3 class="dashboard-class-title">
+                            {{ enrollment.classroom.name }}
+                        </h3>
+
+                        <div class="dashboard-class-subtitle">
+                            Dosen:
+                            {{ enrollment.classroom.teacher.full_name|default:enrollment.classroom.teacher.username }}
+                        </div>
+
+                    </div>
+
+
+                    {% if enrollment.has_active_session %}
+
+                        <span class="session-pill active">
+                            <span class="session-pill-dot"></span>
+                            Sesi Aktif
+                        </span>
+
+                    {% else %}
+
+                        <span class="session-pill inactive">
+                            Tidak Ada Sesi
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="dashboard-class-meta">
+
+                    <span>
+                        Bergabung:
+                        <strong>
+                            {{ enrollment.joined_at|date:"d M Y" }}
+                        </strong>
+                    </span>
+
+                </div>
+
+
+                <div class="dashboard-class-actions">
+
+                    {% if enrollment.has_active_session %}
+
+                        <button
+                            type="button"
+                            class="app-button"
+                            data-modal-url="{% url 'attendance:student_submit' enrollment.classroom.pk %}?modal=1"
+                        >
+                            Isi Presensi
+                        </button>
+
+                    {% endif %}
+
+
+                    <a
+                        href="{% url 'classrooms:student_classroom_list' %}"
+                        class="app-button secondary"
+                    >
+                        Detail Kelas
+                    </a>
+
+                </div>
+
+            </article>
+
+        {% empty %}
+
+            <div class="dashboard-empty">
+
+                <div class="dashboard-empty-icon">
+                    <svg class="icon" style="width:25px;height:25px">
+                        <use href="#icon-book-open"></use>
+                    </svg>
+                </div>
+
+                <h3>Belum Mengikuti Kelas</h3>
+
+                <p>
+                    Kamu belum bergabung ke kelas perkuliahan.
+                    Masukkan kode gabung yang diberikan dosen
+                    untuk mulai menggunakan SIHADIR.
+                </p>
+
+                <button
+                    type="button"
+                    class="app-button"
+                    data-modal-url="{% url 'classrooms:classroom_join' %}?modal=1"
+                >
+                    <svg class="icon" style="width:15px;height:15px">
+                        <use href="#icon-plus"></use>
+                    </svg>
+                    Gabung Kelas
+                </button>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+{% endblock %}

@@ -1,0 +1,91 @@
+
+{% extends "base.html" %}
+
+{% block title %}Gabung Kelas{% endblock %}
+
+{% block content %}
+
+<style>
+    .join-panel {
+        max-width: 550px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 25px;
+    }
+
+    .form-field {
+        margin: 20px 0;
+    }
+
+    .form-field label {
+        display: block;
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .form-field input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    .note {
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="page-heading">
+    <h1>Gabung Kelas</h1>
+    <p>Masukkan kode gabung yang diberikan oleh dosen.</p>
+</div>
+
+<div class="join-panel">
+
+    <form method="POST" action="{{ action_url }}">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        <div class="form-field">
+
+            <label for="{{ form.join_code.id_for_label }}">
+                Kode Gabung
+            </label>
+
+            {{ form.join_code }}
+
+            {% for error in form.join_code.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+
+        </div>
+
+        <p class="note">
+            Pastikan kode gabung yang dimasukkan terdiri
+            dari enam karakter sesuai kode dari dosen.
+        </p>
+
+        <button type="submit" class="app-button">
+            Gabung Kelas
+        </button>
+
+        <a
+            href="{% url 'classrooms:student_classroom_list' %}"
+            class="app-button secondary"
+        >
+            Kembali
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

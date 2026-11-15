@@ -1,0 +1,95 @@
+
+{% extends "base.html" %}
+
+{% block title %}Profil Mahasiswa{% endblock %}
+
+{% block content %}
+
+<style>
+    .profile-card {
+        max-width: 650px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 25px;
+    }
+
+    .profile-field {
+        margin-bottom: 18px;
+    }
+
+    .profile-field label {
+        display: block;
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 7px;
+    }
+
+    .profile-field input {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+    }
+
+    .profile-field input[readonly] {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+</style>
+
+<div class="page-heading">
+    <h1>Profil Mahasiswa</h1>
+    <p>Periksa dan perbarui informasi akun kamu.</p>
+</div>
+
+<div class="profile-card">
+
+    <div class="profile-field">
+        <label>NIM</label>
+
+        <input
+            type="text"
+            value="{{ user.username }}"
+            readonly
+        >
+    </div>
+
+    <form method="POST" action="{{ action_url }}">
+        {% csrf_token %}
+
+        {% for field in form %}
+
+            <div class="profile-field">
+
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% for error in field.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+        <button type="submit" class="app-button">
+            Simpan Perubahan
+        </button>
+    </form>
+
+    <div style="margin-top:20px;">
+        <a
+            href="{% url 'accounts:password_change' %}"
+            class="app-button secondary"
+        >
+            Ganti Password
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

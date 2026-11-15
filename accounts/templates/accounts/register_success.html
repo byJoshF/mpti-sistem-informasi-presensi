@@ -1,0 +1,86 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#102a64">
+
+    <title>Registrasi Berhasil | SIHADIR</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="{% static 'images/sihadir2.png' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-ui.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-polish.css' %}"
+    >
+
+</head>
+
+<body class="auth-page">
+
+<div class="auth-shell" style="display:flex;align-items:center;justify-content:center;">
+
+    <section class="auth-form-panel" style="width:100%;">
+
+        <div class="auth-success-card">
+
+            <div class="auth-success-icon">
+
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="m5 12 4 4L19 6"/>
+                </svg>
+
+            </div>
+
+
+            <div class="auth-kicker">
+                PENDAFTARAN SELESAI
+            </div>
+
+            <h1>Akun berhasil dibuat!</h1>
+
+            <p>
+                Selamat, {{ user.full_name }}.
+                Akun mahasiswa kamu sudah berhasil didaftarkan.
+            </p>
+
+
+            <div class="auth-nim-box">
+                NIM: {{ user.username }}
+            </div>
+
+
+            <p>
+                Gunakan NIM dan password yang telah didaftarkan
+                untuk masuk ke SIHADIR.
+            </p>
+
+
+            <a
+                href="{% url 'accounts:login' %}"
+                class="app-button"
+            >
+                Masuk ke SIHADIR
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
+
+</body>
+</html>

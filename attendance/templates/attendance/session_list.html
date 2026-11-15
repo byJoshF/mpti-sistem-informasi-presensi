@@ -1,0 +1,419 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sesi Presensi | SIHADIR{% endblock %}
+{% block page_label %}Sesi Presensi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sihadir-polish.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="teacher-page">
+
+    <div class="teacher-page-toolbar">
+
+        <a
+            href="{% url 'classrooms:classroom_detail' classroom.pk %}"
+            class="glass-back-link"
+        >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5"/>
+                <path d="m12 19-7-7 7-7"/>
+            </svg>
+            Kembali ke Detail Kelas
+        </a>
+
+        <div class="teacher-page-actions">
+
+            <a
+                href="{% url 'attendance:semester_recap' classroom.pk %}"
+                class="teacher-action teacher-action-glass"
+            >
+                <svg class="icon">
+                    <use href="#icon-book-open"></use>
+                </svg>
+                Rekap Presensi
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="teacher-page-heading">
+
+        <div>
+            <h1>Sesi Presensi</h1>
+            <p>
+                Kelas: <strong>{{ classroom.name }}</strong>.
+                Kelola sesi dan pantau kehadiran mahasiswa.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- SESI AKTIF -->
+
+    {% if active_session %}
+
+        <section class="session-live-panel">
+
+            <div class="session-live-header">
+
+                <div class="session-live-title">
+
+                    <span class="session-status-label ongoing">
+                        SESI SEDANG BERLANGSUNG
+                    </span>
+
+                    <h2>
+                        Pertemuan {{ active_session.meeting_number }}
+                    </h2>
+
+                    <p>
+                        Mahasiswa dapat mengisi presensi menggunakan kode
+                        selama waktu sesi masih tersedia.
+                    </p>
+
+                </div>
+
+                <span class="teacher-session-state is-active">
+                    Aktif
+                </span>
+
+            </div>
+
+
+            <div class="session-live-grid">
+
+                <div class="session-code-box">
+
+                    <span class="session-code-label">
+                        KODE PRESENSI
+                    </span>
+
+                    <div class="session-code-value">
+                        {{ active_session.attendance_code }}
+                    </div>
+
+                </div>
+
+
+                <div class="session-live-meta">
+
+                    <div class="session-live-meta-item">
+                        <span>Durasi</span>
+                        <strong>{{ active_session.duration_minutes }} menit</strong>
+                    </div>
+
+                    <div class="session-live-meta-item">
+                        <span>Waktu mulai</span>
+                        <strong>{{ active_session.started_at|date:"d M Y, H:i" }}</strong>
+                    </div>
+
+                    <div class="session-live-meta-item">
+                        <span>Waktu berakhir</span>
+                        <strong>{{ active_session.expires_at|date:"d M Y, H:i" }}</strong>
+                    </div>
+
+                    <div class="session-live-meta-item">
+                        <span>Pertemuan</span>
+                        <strong>{{ active_session.meeting_number }}</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="session-live-action">
+
+                <a
+                    href="{% url 'attendance:session_detail' classroom.pk active_session.pk %}"
+                    class="teacher-action teacher-action-primary"
+                >
+                    Pantau Kehadiran Mahasiswa
+                    <svg class="icon"><use href="#icon-arrow-right"></use></svg>
+                </a>
+
+            </div>
+
+        </section>
+
+    {% else %}
+
+        <section class="session-create-panel">
+
+            <div>
+                <h2>Belum Ada Sesi Aktif</h2>
+
+                <p>
+                    Buat sesi presensi baru dengan memilih durasi.
+                    Kode dan waktu sesi akan dibuat otomatis oleh sistem.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="teacher-action teacher-action-primary"
+                data-modal-url="{% url 'attendance:session_create' classroom.pk %}?modal=1"
+            >
+                <svg class="icon"><use href="#icon-plus"></use></svg>
+                Buat Sesi Absensi
+            </button>
+
+        </section>
+
+    {% endif %}
+
+
+    <!-- RIWAYAT SESI -->
+
+    <section class="teacher-section-card">
+
+        <div class="teacher-section-heading">
+
+            <div>
+                <h2>Riwayat Sesi</h2>
+                <p>
+                    Sesi yang pernah dibuat untuk kelas ini.
+                </p>
+            </div>
+
+            <span class="teacher-count-badge">
+                {{ sessions|length }} sesi
+            </span>
+
+        </div>
+
+
+        <div class="session-history-list">
+
+            {% for session in sessions %}
+
+                <article class="session-history-card state-{{ session.display_state }}">
+
+                    <div class="session-history-top">
+
+                        <div class="session-history-title">
+
+                            <h3>
+                                Pertemuan {{ session.meeting_number }}
+                            </h3>
+
+                            <span class="session-status-label {{ session.display_state }}">
+                                {{ session.display_state_label }}
+                            </span>
+
+                        </div>
+
+
+                        {% if session.status == "OPEN" or session.status == "EXPIRED" %}
+
+                            <div class="action-menu-wrap">
+
+                                <button
+                                    type="button"
+                                    class="action-menu-trigger"
+                                    aria-label="Tindakan untuk pertemuan {{ session.meeting_number }}"
+                                    aria-expanded="false"
+                                    aria-haspopup="true"
+                                >
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <circle cx="5" cy="12" r="1.8"/>
+                                        <circle cx="12" cy="12" r="1.8"/>
+                                        <circle cx="19" cy="12" r="1.8"/>
+                                    </svg>
+                                </button>
+
+                                <div class="action-menu-panel" hidden>
+
+                                    <button
+                                        type="button"
+                                        class="action-menu-item is-danger"
+                                        data-modal-url="{% url 'attendance:session_cancel' classroom.pk session.pk %}?modal=1"
+                                    >
+                                        Batalkan Sesi
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="session-history-meta">
+
+                        <div class="session-history-meta-item">
+                            Kode:
+                            <strong>{{ session.attendance_code }}</strong>
+                        </div>
+
+                        <div class="session-history-meta-item">
+                            Durasi:
+                            <strong>{{ session.duration_minutes }} menit</strong>
+                        </div>
+
+                        <div class="session-history-meta-item">
+                            Waktu:
+                            <strong>{{ session.started_at|date:"d M Y, H:i" }}</strong>
+                        </div>
+
+                        {% if session.status != "CANCELLED" %}
+
+                            <div class="session-history-meta-item">
+                                Peserta tercatat:
+                                <strong>{{ session.total_records }}</strong>
+                            </div>
+
+                            <div class="session-history-meta-item">
+                                Belum mengisi:
+                                <strong>{{ session.pending_records }}</strong>
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="session-history-bottom">
+
+                        {% if session.status == "CANCELLED" %}
+
+                            <p>
+                                Alasan pembatalan:
+                                {{ session.cancellation_reason|default:"Tidak ada keterangan." }}
+                            </p>
+
+                        {% else %}
+
+                            <p>
+                                Buka detail untuk melihat status setiap mahasiswa.
+                            </p>
+
+                        {% endif %}
+
+
+                        <a
+                            href="{% url 'attendance:session_detail' classroom.pk session.pk %}"
+                            class="teacher-action teacher-action-glass"
+                        >
+                            Lihat Daftar Kehadiran
+                            <svg class="icon"><use href="#icon-arrow-right"></use></svg>
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {% empty %}
+
+                <div class="teacher-empty-state">
+                    <h3>Belum Ada Riwayat Sesi</h3>
+                    <p>
+                        Sesi presensi yang dibuat untuk kelas ini
+                        akan ditampilkan di sini.
+                    </p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+(function () {
+
+    function closeMenus(except) {
+
+        document.querySelectorAll(".action-menu-panel").forEach(function(menu) {
+
+            if (menu === except) {
+                return;
+            }
+
+            menu.hidden = true;
+
+            const trigger = menu.previousElementSibling;
+
+            if (trigger) {
+                trigger.setAttribute("aria-expanded", "false");
+            }
+
+            const wrapper = menu.closest(".action-menu-wrap");
+
+            if (wrapper) {
+                wrapper.classList.remove("is-open");
+            }
+
+        });
+
+    }
+
+
+    document.querySelectorAll(".action-menu-trigger").forEach(function(button) {
+
+        button.addEventListener("click", function(event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const menu = this.nextElementSibling;
+            const shouldOpen = menu.hidden;
+
+            closeMenus(menu);
+
+            menu.hidden = !shouldOpen;
+
+            this.setAttribute(
+                "aria-expanded",
+                String(shouldOpen)
+            );
+
+            this.closest(".action-menu-wrap").classList.toggle(
+                "is-open",
+                shouldOpen
+            );
+
+        });
+
+    });
+
+
+    document.addEventListener("click", function(event) {
+
+        if (!event.target.closest(".action-menu-wrap")) {
+            closeMenus();
+        }
+
+    });
+
+
+    document.addEventListener("keydown", function(event) {
+
+        if (event.key === "Escape") {
+            closeMenus();
+        }
+
+    });
+
+})();
+</script>
+
+{% endblock %}

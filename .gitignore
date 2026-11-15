@@ -221,3 +221,13 @@ __marimo__/
 
 # Environment variables and secrets
 .env
+
+# Django collected static files
+staticfiles/
+
+# Environment files
+.env.*
+!.env.example
+
+.env.staging
+staticfiles/

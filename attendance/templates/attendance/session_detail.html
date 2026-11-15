@@ -1,0 +1,522 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pertemuan {{ session.meeting_number }} | SIHADIR{% endblock %}
+{% block page_label %}Detail Sesi Presensi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sihadir-polish.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="teacher-page">
+
+    <div class="teacher-page-toolbar">
+
+        <a
+            href="{% url 'attendance:session_list' classroom.pk %}"
+            class="glass-back-link"
+        >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5"/>
+                <path d="m12 19-7-7 7-7"/>
+            </svg>
+            Kembali ke Daftar Sesi
+        </a>
+
+    </div>
+
+
+    <!-- INFORMASI SESI -->
+
+    <section class="session-detail-hero">
+
+        <div class="session-detail-title-row">
+
+            <div>
+                <h1>Pertemuan {{ session.meeting_number }}</h1>
+
+                <p>
+                    Kelas: {{ classroom.name }}
+                </p>
+            </div>
+
+
+            <div class="session-detail-actions">
+
+                <a
+                    href="{% url 'attendance:semester_recap' classroom.pk %}"
+                    class="teacher-action teacher-action-glass"
+                >
+                    Rekap Presensi
+                </a>
+
+                <a
+                    href="{% url 'classrooms:classroom_detail' classroom.pk %}"
+                    class="teacher-action teacher-action-glass"
+                >
+                    Detail Kelas
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="session-detail-meta">
+
+            <span>
+                Waktu mulai:
+                <strong>{{ session.started_at|date:"d M Y, H:i" }}</strong>
+            </span>
+
+            <span>
+                Durasi:
+                <strong>{{ session.duration_minutes }} menit</strong>
+            </span>
+
+
+            {% if session.status == "OPEN" %}
+
+                <span class="session-status-label ongoing">
+                    Sesi Berlangsung
+                </span>
+
+            {% elif session.status == "CANCELLED" %}
+
+                <span class="session-status-label cancelled">
+                    Sesi Dibatalkan
+                </span>
+
+            {% elif session.status == "CLOSED" %}
+
+                <span class="session-status-label complete">
+                    Sesi Ditutup
+                </span>
+
+            {% else %}
+
+                <span class="session-status-label incomplete">
+                    Sesi Berakhir
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- RINGKASAN -->
+
+    <section class="detail-stats-grid">
+
+        <article class="detail-stat-card">
+            <span>Total Peserta</span>
+            <strong>{{ total_students }}</strong>
+        </article>
+
+        <article class="detail-stat-card is-present">
+            <span>Hadir</span>
+            <strong>{{ present_count }}</strong>
+        </article>
+
+        <article class="detail-stat-card is-pending">
+            <span>Belum Mengisi</span>
+            <strong>{{ not_submitted_count }}</strong>
+        </article>
+
+        <article class="detail-stat-card">
+            <span>Izin</span>
+            <strong>{{ permitted_count }}</strong>
+        </article>
+
+        <article class="detail-stat-card">
+            <span>Sakit</span>
+            <strong>{{ sick_count }}</strong>
+        </article>
+
+        <article class="detail-stat-card is-absent">
+            <span>Alfa</span>
+            <strong>{{ absent_count }}</strong>
+        </article>
+
+    </section>
+
+
+    {% if show_pending_only %}
+
+        <div class="message warning">
+            Saat ini hanya menampilkan mahasiswa yang belum mengisi presensi.
+
+            <a
+                href="{% url 'attendance:session_detail' classroom.pk session.pk %}"
+            >
+                Tampilkan semua mahasiswa
+            </a>
+        </div>
+
+    {% endif %}
+
+
+    <!-- MAHASISWA BELUM MENGISI -->
+
+    <section class="student-section-polished">
+
+        <div class="student-section-heading-polished">
+
+            <h2>Belum Mengisi</h2>
+
+            <span class="teacher-count-badge">
+                {{ not_submitted_count }} mahasiswa
+            </span>
+
+        </div>
+
+
+        {% for record in pending_records %}
+
+            <article
+                class="record-card-polished"
+                id="record-{{ record.pk }}"
+            >
+
+                <div class="record-card-top">
+
+                    <div class="record-student-info">
+
+                        <strong>
+                            {{ record.student.full_name }}
+                        </strong>
+
+                        <small>
+                            NIM: {{ record.student.username }}
+                        </small>
+
+                        <div class="record-status-row">
+
+                            <span class="session-status-label incomplete">
+                                Belum Mengisi
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {% if can_edit_records %}
+
+                    <div class="record-action-footer">
+
+                        <button
+                            type="button"
+                            class="teacher-action teacher-action-primary"
+                            data-modal-url="{% url 'attendance:record_update_status' classroom.pk session.pk record.pk %}?modal=1"
+                        >
+                            Tindakan
+                        </button>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="note" style="margin:12px 0 0;">
+                        Menunggu sesi berakhir sebelum dosen dapat
+                        menentukan status mahasiswa.
+                    </p>
+
+                {% endif %}
+
+            </article>
+
+        {% empty %}
+
+            <div class="teacher-empty-state">
+                <h3>Semua Mahasiswa Sudah Memiliki Status</h3>
+                <p>
+                    Tidak ada lagi catatan yang berstatus Belum Mengisi.
+                </p>
+            </div>
+
+        {% endfor %}
+
+    </section>
+
+
+    <!-- MAHASISWA DENGAN STATUS SELESAI -->
+
+    {% if not show_pending_only %}
+
+        <section class="student-section-polished">
+
+            <div class="student-section-heading-polished">
+
+                <h2>Status Presensi Terselesaikan</h2>
+
+                <span class="teacher-count-badge">
+                    {{ present_count|add:permitted_count|add:sick_count|add:absent_count }}
+                    mahasiswa
+                </span>
+
+            </div>
+
+
+            {% for record in resolved_records %}
+
+                <article
+                    class="record-card-polished"
+                    id="record-{{ record.pk }}"
+                >
+
+                    <div class="record-card-top">
+
+                        <div class="record-student-info">
+
+                            <strong>
+                                {{ record.student.full_name }}
+                            </strong>
+
+                            <small>
+                                NIM: {{ record.student.username }}
+                            </small>
+
+
+                            <div class="record-status-row">
+
+                                {% if record.status == "PRESENT" %}
+
+                                    <span class="session-status-label complete">
+                                        Hadir
+                                    </span>
+
+                                {% elif record.status == "PERMITTED" %}
+
+                                    <span class="session-status-label ongoing">
+                                        Izin
+                                    </span>
+
+                                {% elif record.status == "SICK" %}
+
+                                    <span class="session-status-label incomplete">
+                                        Sakit
+                                    </span>
+
+                                {% elif record.status == "ABSENT" %}
+
+                                    <span class="session-status-label cancelled">
+                                        Alfa
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            {% if record.submitted_at %}
+
+                                <small>
+                                    Mengisi:
+                                    {{ record.submitted_at|date:"d M Y, H:i:s" }}
+                                </small>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        {% if can_edit_records %}
+
+                            <div class="action-menu-wrap">
+
+                                <button
+                                    type="button"
+                                    class="action-menu-trigger"
+                                    aria-label="Ubah status {{ record.student.full_name }}"
+                                    aria-expanded="false"
+                                    aria-haspopup="true"
+                                >
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <circle cx="5" cy="12" r="1.8"/>
+                                        <circle cx="12" cy="12" r="1.8"/>
+                                        <circle cx="19" cy="12" r="1.8"/>
+                                    </svg>
+                                </button>
+
+
+                                <div class="action-menu-panel" hidden>
+
+                                    <button
+                                        type="button"
+                                        class="action-menu-item"
+                                        data-modal-url="{% url 'attendance:record_update_status' classroom.pk session.pk record.pk %}?modal=1"
+                                    >
+                                        Ubah Status
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    {% with logs=record.change_logs.all %}
+
+                        {% if logs %}
+
+                            <details class="record-history">
+
+                                <summary>
+                                    Riwayat perubahan status
+                                </summary>
+
+                                <ul class="record-history-list">
+
+                                    {% for log in logs %}
+
+                                        <li>
+
+                                            <strong>
+                                                {{ log.get_old_status_display }}
+                                                &rarr;
+                                                {{ log.get_new_status_display }}
+                                            </strong>
+
+                                            <br>
+
+                                            Alasan: {{ log.reason }}
+
+                                            <br>
+
+                                            Diubah oleh:
+                                            {{ log.changed_by.full_name|default:log.changed_by.username }}
+
+                                            <br>
+
+                                            Waktu:
+                                            {{ log.changed_at|date:"d M Y, H:i:s" }}
+
+                                        </li>
+
+                                    {% endfor %}
+
+                                </ul>
+
+                            </details>
+
+                        {% endif %}
+
+                    {% endwith %}
+
+                </article>
+
+            {% empty %}
+
+                <div class="teacher-empty-state">
+                    <h3>Belum Ada Status Terselesaikan</h3>
+                    <p>
+                        Mahasiswa yang sudah memiliki status presensi
+                        akan ditampilkan di sini.
+                    </p>
+                </div>
+
+            {% endfor %}
+
+        </section>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+(function () {
+
+    function closeMenus(except) {
+
+        document.querySelectorAll(".action-menu-panel").forEach(function(menu) {
+
+            if (menu === except) {
+                return;
+            }
+
+            menu.hidden = true;
+
+            const trigger = menu.previousElementSibling;
+
+            if (trigger) {
+                trigger.setAttribute("aria-expanded", "false");
+            }
+
+            const wrapper = menu.closest(".action-menu-wrap");
+
+            if (wrapper) {
+                wrapper.classList.remove("is-open");
+            }
+
+        });
+
+    }
+
+
+    document.querySelectorAll(".action-menu-trigger").forEach(function(button) {
+
+        button.addEventListener("click", function(event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const menu = this.nextElementSibling;
+            const shouldOpen = menu.hidden;
+
+            closeMenus(menu);
+
+            menu.hidden = !shouldOpen;
+
+            this.setAttribute(
+                "aria-expanded",
+                String(shouldOpen)
+            );
+
+            this.closest(".action-menu-wrap").classList.toggle(
+                "is-open",
+                shouldOpen
+            );
+
+        });
+
+    });
+
+
+    document.addEventListener("click", function(event) {
+
+        if (!event.target.closest(".action-menu-wrap")) {
+            closeMenus();
+        }
+
+    });
+
+
+    document.addEventListener("keydown", function(event) {
+
+        if (event.key === "Escape") {
+            closeMenus();
+        }
+
+    });
+
+})();
+</script>
+
+{% endblock %}

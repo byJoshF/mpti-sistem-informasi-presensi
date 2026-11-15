@@ -1,0 +1,69 @@
+
+<div class="modal-heading">
+    <h2>
+        {% if is_edit %}
+            Edit Kelas
+        {% else %}
+            Buat Kelas Baru
+        {% endif %}
+    </h2>
+
+    <p>
+        Masukkan informasi kelas perkuliahan.
+    </p>
+</div>
+
+<form
+    method="POST"
+    action="{{ action_url }}"
+    data-ajax-form
+>
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    <div class="modal-field">
+        <label for="{{ form.name.id_for_label }}">
+            {{ form.name.label }}
+        </label>
+
+        {{ form.name }}
+
+        {% for error in form.name.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="modal-field">
+        <label for="{{ form.description.id_for_label }}">
+            {{ form.description.label }}
+        </label>
+
+        {{ form.description }}
+
+        {% for error in form.description.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="modal-actions">
+        <button
+            type="button"
+            class="modal-button modal-cancel"
+            data-modal-close
+        >
+            Batal
+        </button>
+
+        <button
+            type="submit"
+            class="modal-button modal-save"
+        >
+            {% if is_edit %}
+                Simpan Perubahan
+            {% else %}
+                Buat Kelas
+            {% endif %}
+        </button>
+    </div>
+</form>

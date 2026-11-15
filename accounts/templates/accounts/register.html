@@ -1,0 +1,267 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#102a64">
+
+    <title>Registrasi Mahasiswa | SIHADIR</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="{% static 'images/sihadir2.png' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-ui.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-polish.css' %}"
+    >
+
+</head>
+
+
+<body class="auth-page">
+
+<div class="auth-shell">
+
+
+    <!-- VISUAL PANEL -->
+
+    <section class="auth-visual">
+
+        <div class="auth-brand">
+
+            <img
+                src="{% static 'images/sihadir1.png' %}"
+                alt="SIHADIR"
+            >
+
+            <span class="auth-brand-caption">
+                SISTEM INFORMASI KEHADIRAN DIGITAL
+            </span>
+
+        </div>
+
+
+        <div class="auth-visual-main">
+
+            <div class="auth-eyebrow">
+                <span class="auth-eyebrow-dot"></span>
+                AKUN MAHASISWA
+            </div>
+
+            <h1 class="auth-visual-title">
+                Mulai kelola kehadiran perkuliahanmu.
+            </h1>
+
+            <p class="auth-visual-description">
+                Daftarkan akun mahasiswa untuk bergabung dengan kelas,
+                mengisi presensi, dan memantau riwayat kehadiran.
+            </p>
+
+        </div>
+
+
+        <div class="auth-visual-footer">
+            Satu kelas. Satu kode. Semua tercatat.
+            <br>
+            © 2026 SIHADIR
+        </div>
+
+    </section>
+
+
+    <!-- REGISTER FORM -->
+
+    <section class="auth-form-panel">
+
+        <div class="auth-card">
+
+            <div class="auth-kicker">
+                PENDAFTARAN MAHASISWA
+            </div>
+
+            <h2 class="auth-heading">
+                Buat akun baru
+            </h2>
+
+            <p class="auth-description">
+                Lengkapi informasi berikut sesuai data mahasiswa.
+            </p>
+
+
+            {% if form.non_field_errors %}
+
+                <div class="auth-error-box" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+
+            {% endif %}
+
+
+            <form
+                method="POST"
+                action="{% url 'accounts:register' %}"
+                autocomplete="on"
+            >
+
+                {% csrf_token %}
+
+
+                {% for field in form %}
+
+                    <div class="auth-field">
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+
+                        {% if field.help_text %}
+
+                            {% if field.name == "password1" %}
+
+                                <details class="auth-password-help">
+
+                                    <summary>
+                                        Ketentuan password
+                                    </summary>
+
+                                    {{ field.help_text|safe }}
+
+                                </details>
+
+                            {% else %}
+
+                                <div class="auth-helper">
+                                    {{ field.help_text|safe }}
+                                </div>
+
+                            {% endif %}
+
+                        {% endif %}
+
+
+                        {% if field.errors %}
+
+                            <div class="errorlist">
+                                {{ field.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+
+                <button type="submit" class="auth-submit">
+
+                    <span>Buat Akun Mahasiswa</span>
+
+                    <svg class="icon" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M5 12h14"/>
+                        <path d="m12 5 7 7-7 7"/>
+                    </svg>
+
+                </button>
+
+            </form>
+
+
+            <div class="auth-alternative">
+
+                Sudah memiliki akun?
+
+                <a href="{% url 'accounts:login' %}">
+                    Masuk sekarang
+                </a>
+
+            </div>
+
+
+            <div class="auth-security-note">
+
+                <svg class="icon" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+
+                <span>
+                    Pastikan NIM dan email yang digunakan benar.
+                    NIM menjadi identitas login mahasiswa.
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script src="{% static 'js/password-toggle.js' %}"></script>
+
+<script>
+(function () {
+
+    const nimInput = document.getElementById("id_username");
+    const fullNameInput = document.getElementById("id_full_name");
+    const emailInput = document.getElementById("id_email");
+
+    const password1 = document.getElementById("id_password1");
+    const password2 = document.getElementById("id_password2");
+
+
+    if (nimInput) {
+        nimInput.placeholder = "Masukkan NIM";
+        nimInput.autocomplete = "username";
+        nimInput.inputMode = "numeric";
+    }
+
+    if (fullNameInput) {
+        fullNameInput.placeholder = "Masukkan nama lengkap";
+        fullNameInput.autocomplete = "name";
+    }
+
+    if (emailInput) {
+        emailInput.placeholder = "nama@email.com";
+        emailInput.autocomplete = "email";
+        emailInput.type = "email";
+    }
+
+    if (password1) {
+        password1.autocomplete = "new-password";
+        password1.placeholder = "Buat password";
+    }
+
+    if (password2) {
+        password2.autocomplete = "new-password";
+        password2.placeholder = "Ulangi password";
+    }
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+    {% if is_edit %}Edit Kelas{% else %}Buat Kelas{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .form-panel {
+        max-width: 650px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 25px;
+    }
+
+    .form-field {
+        margin-bottom: 18px;
+    }
+
+    .form-field label {
+        display: block;
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 7px;
+    }
+
+    .form-field input,
+    .form-field textarea {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+    }
+</style>
+
+<div class="page-heading">
+    <h1>
+        {% if is_edit %}Edit Kelas{% else %}Buat Kelas Baru{% endif %}
+    </h1>
+
+    <p>
+        Masukkan informasi kelas perkuliahan.
+    </p>
+</div>
+
+<div class="form-panel">
+
+    <form method="POST" action="{{ action_url }}">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        <div class="form-field">
+
+            <label for="{{ form.name.id_for_label }}">
+                {{ form.name.label }}
+            </label>
+
+            {{ form.name }}
+
+            {% for error in form.name.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+
+        </div>
+
+        <div class="form-field">
+
+            <label for="{{ form.description.id_for_label }}">
+                {{ form.description.label }}
+            </label>
+
+            {{ form.description }}
+
+            {% for error in form.description.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+
+        </div>
+
+        <button type="submit" class="app-button">
+            {% if is_edit %}
+                Simpan Perubahan
+            {% else %}
+                Buat Kelas
+            {% endif %}
+        </button>
+
+        <a
+            href="{% url 'classrooms:classroom_list' %}"
+            class="app-button secondary"
+        >
+            Kembali
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

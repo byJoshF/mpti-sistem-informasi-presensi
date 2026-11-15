@@ -27,5 +27,11 @@ class User(AbstractUser):
 
     REQUIRED_FIELDS = ["email", "full_name"]
 
+    is_demo = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name="Akun demonstrasi"
+    )
+
     def __str__(self):
         return self.username

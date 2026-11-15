@@ -1,0 +1,413 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Riwayat Presensi Saya | SIHADIR{% endblock %}
+{% block page_label %}Riwayat Presensi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sihadir-polish.css' %}">
+
+<style>
+    .student-history-list-page {
+        display: flex;
+        flex-direction: column;
+        gap: 21px;
+    }
+
+    .student-history-list-heading h1 {
+        margin: 0 0 7px;
+        color: #102a64;
+        font-size: 26px;
+        font-weight: 850;
+        letter-spacing: -.7px;
+    }
+
+    .student-history-list-heading p {
+        max-width: 650px;
+        margin: 0;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .student-history-list-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+
+        width: fit-content;
+        padding: 7px 11px;
+
+        color: #285b99;
+        background: #edf4ff;
+        border: 1px solid #d3e2f6;
+        border-radius: 30px;
+
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .student-history-list-grid {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 16px;
+    }
+
+    .student-history-class-card {
+        min-width: 0;
+        padding: 21px;
+
+        background: #ffffff;
+        border: 1px solid #cbd9eb;
+        border-radius: 16px;
+
+        box-shadow:
+            0 1px 2px rgba(12,35,72,.075),
+            0 8px 22px rgba(16,42,100,.055),
+            inset 0 1px 0 rgba(255,255,255,.94);
+
+        transition:
+            transform .18s ease,
+            border-color .18s ease,
+            box-shadow .18s ease;
+    }
+
+    .student-history-class-card:hover {
+        border-color: #9fbce0;
+        box-shadow:
+            0 0 0 1px rgba(21,89,201,.065),
+            0 10px 25px rgba(16,42,100,.085);
+        transform: translateY(-2px);
+    }
+
+    .student-history-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .student-history-card-title {
+        min-width: 0;
+    }
+
+    .student-history-card-title h2 {
+        margin: 11px 0 0;
+        color: #102a64;
+        font-size: 16px;
+        font-weight: 850;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+    }
+
+    .student-history-class-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        padding: 6px 9px;
+        border-radius: 30px;
+
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: .15px;
+    }
+
+    .student-history-class-state::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .student-history-class-state.is-active {
+        color: #176b45;
+        background: #e8f6ee;
+        border: 1px solid #c4e7d1;
+    }
+
+    .student-history-class-state.is-inactive {
+        color: #64748b;
+        background: #f0f4f8;
+        border: 1px solid #dce4ee;
+    }
+
+    .student-history-card-divider {
+        height: 1px;
+        margin: 16px 0;
+        background: #dfe8f3;
+    }
+
+    .student-history-class-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        color: #64748b;
+        font-size: 11px;
+        line-height: 1.65;
+    }
+
+    .student-history-class-meta strong {
+        color: #334e70;
+        font-weight: 750;
+    }
+
+    .student-history-class-description {
+        padding: 11px 12px;
+        margin-top: 14px;
+
+        color: #687d98;
+        background: #f6f9fe;
+
+        border: 1px solid #e0e9f5;
+        border-radius: 10px;
+
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .student-history-card-action {
+        display: flex;
+        margin-top: 17px;
+    }
+
+    .student-history-card-action .teacher-action {
+        width: 100%;
+        min-height: 42px;
+    }
+
+    .student-history-empty {
+        grid-column: 1/-1;
+
+        padding: 43px 22px;
+
+        background: #ffffff;
+        border: 1px dashed #b9cde5;
+        border-radius: 17px;
+
+        box-shadow: 0 5px 16px rgba(16,42,100,.035);
+
+        text-align: center;
+    }
+
+    .student-history-empty-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 51px;
+        height: 51px;
+        margin: 0 auto 15px;
+
+        color: #1559c9;
+        background: #edf4ff;
+        border: 1px solid #d4e3f7;
+        border-radius: 15px;
+    }
+
+    .student-history-empty h3 {
+        margin: 0 0 7px;
+        color: #102a64;
+        font-size: 17px;
+        font-weight: 850;
+    }
+
+    .student-history-empty p {
+        max-width: 390px;
+        margin: 0 auto 18px;
+
+        color: #718198;
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+    @media (max-width: 760px) {
+        .student-history-list-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .student-history-list-heading h1 {
+            font-size: 23px;
+        }
+
+        .student-history-class-card {
+            padding: 17px;
+        }
+
+        .student-history-empty {
+            padding: 32px 17px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="student-history-list-page">
+
+    <!-- TOMBOL KEMBALI -->
+
+    <div class="teacher-page-toolbar">
+
+        <a
+            href="{% url 'home' %}"
+            class="glass-back-link"
+        >
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+                <path d="M19 12H5"/>
+                <path d="m12 19-7-7 7-7"/>
+            </svg>
+
+            Kembali ke Beranda
+        </a>
+
+    </div>
+
+
+    <!-- JUDUL -->
+
+    <div class="student-history-list-heading">
+
+        <h1>Riwayat Presensi Saya</h1>
+
+        <p>
+            Lihat riwayat kehadiran dari seluruh kelas yang pernah
+            kamu ikuti, termasuk kelas yang sudah ditinggalkan.
+        </p>
+
+    </div>
+
+
+    <div class="student-history-list-count">
+        {{ enrollments|length }} kelas dalam riwayatmu
+    </div>
+
+
+    <!-- DAFTAR KELAS -->
+
+    <div class="student-history-list-grid">
+
+        {% for enrollment in enrollments %}
+
+            <article class="student-history-class-card">
+
+                <div class="student-history-card-top">
+
+                    <div class="student-history-card-title">
+
+                        {% if enrollment.is_active %}
+
+                            <span class="student-history-class-state is-active">
+                                Masih Mengikuti Kelas
+                            </span>
+
+                        {% else %}
+
+                            <span class="student-history-class-state is-inactive">
+                                Sudah Keluar dari Kelas
+                            </span>
+
+                        {% endif %}
+
+
+                        <h2>
+                            {{ enrollment.classroom.name }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="student-history-card-divider"></div>
+
+
+                <div class="student-history-class-meta">
+
+                    <div>
+                        Dosen:
+                        <strong>
+                            {{ enrollment.classroom.teacher.full_name|default:enrollment.classroom.teacher.username }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        Terdaftar sejak:
+                        <strong>
+                            {{ enrollment.joined_at|date:"d M Y" }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                {% if enrollment.classroom.description %}
+
+                    <div class="student-history-class-description">
+                        {{ enrollment.classroom.description }}
+                    </div>
+
+                {% endif %}
+
+
+                <div class="student-history-card-action">
+
+                    <a
+                        href="{% url 'attendance:student_class_history' enrollment.classroom.pk %}"
+                        class="teacher-action teacher-action-primary"
+                    >
+                        Lihat Rincian Presensi
+                        <svg class="icon">
+                            <use href="#icon-arrow-right"></use>
+                        </svg>
+                    </a>
+
+                </div>
+
+            </article>
+
+        {% empty %}
+
+            <div class="student-history-empty">
+
+                <div class="student-history-empty-icon">
+                    <svg class="icon" style="width:24px;height:24px">
+                        <use href="#icon-history"></use>
+                    </svg>
+                </div>
+
+                <h3>Belum Ada Riwayat Kelas</h3>
+
+                <p>
+                    Kamu belum pernah bergabung dengan kelas perkuliahan.
+                    Bergabunglah ke kelas melalui kode yang diberikan dosen.
+                </p>
+
+                <a
+                    href="{% url 'classrooms:student_classroom_list' %}"
+                    class="teacher-action teacher-action-primary"
+                >
+                    Lihat Kelas Saya
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

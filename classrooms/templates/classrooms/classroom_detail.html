@@ -1,0 +1,498 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ classroom.name }} | SIHADIR{% endblock %}
+{% block page_label %}Detail Kelas{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sihadir-polish.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="teacher-page">
+
+    <div class="teacher-page-toolbar">
+
+        <a
+            href="{% url 'classrooms:classroom_list' %}"
+            class="glass-back-link"
+        >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5"/>
+                <path d="m12 19-7-7 7-7"/>
+            </svg>
+            Kembali ke Daftar Kelas
+        </a>
+
+    </div>
+
+
+    <!-- HEADER DETAIL KELAS -->
+
+    <section class="teacher-detail-header">
+
+        <div class="teacher-detail-title-row">
+
+            <div class="teacher-detail-title">
+
+                <h1>{{ classroom.name }}</h1>
+
+                <p>
+                    Kelola informasi kelas, anggota, sesi absensi,
+                    dan rekap kehadiran.
+                </p>
+
+            </div>
+
+
+            <div class="teacher-detail-actions">
+
+                <a
+                    href="{% url 'attendance:session_list' classroom.pk %}"
+                    class="teacher-action teacher-action-primary"
+                >
+                    <svg class="icon">
+                        <use href="#icon-history"></use>
+                    </svg>
+                    Kelola Sesi
+                </a>
+
+
+                <a
+                    href="{% url 'attendance:semester_recap' classroom.pk %}"
+                    class="teacher-action teacher-action-glass"
+                >
+                    <svg class="icon">
+                        <use href="#icon-book-open"></use>
+                    </svg>
+                    Rekap
+                </a>
+
+
+                <div class="action-menu-wrap">
+
+                    <button
+                        type="button"
+                        class="action-menu-trigger"
+                        aria-label="Pengaturan kelas"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                    >
+                        <svg viewBox="0 0 24 24" fill="currentColor"
+                             aria-hidden="true">
+                            <circle cx="5" cy="12" r="1.8"/>
+                            <circle cx="12" cy="12" r="1.8"/>
+                            <circle cx="19" cy="12" r="1.8"/>
+                        </svg>
+                    </button>
+
+
+                    <div class="action-menu-panel" hidden>
+
+                        <button
+                            type="button"
+                            class="action-menu-item"
+                            data-modal-url="{% url 'classrooms:classroom_edit' classroom.pk %}?modal=1"
+                        >
+                            Edit Informasi Kelas
+                        </button>
+
+
+                        {% if has_attendance_history %}
+
+                            <div class="action-menu-note">
+                                Kelas tidak dapat dihapus karena sudah
+                                memiliki riwayat presensi.
+                            </div>
+
+                        {% else %}
+
+                            <form
+                                method="POST"
+                                action="{% url 'classrooms:classroom_delete' classroom.pk %}"
+                                data-ajax-form
+                                data-confirm="Yakin ingin menghapus kelas {{ classroom.name }}? Tindakan ini tidak dapat dibatalkan."
+                                data-success-url="{% url 'classrooms:classroom_list' %}"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="action-menu-item is-danger"
+                                >
+                                    Hapus Kelas
+                                </button>
+                            </form>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- INFORMASI KELAS -->
+
+        <div class="teacher-information-card">
+
+            <div class="teacher-information-top">
+
+                <h2>Informasi Kelas</h2>
+
+                <span class="teacher-count-badge">
+                    {{ enrollments|length }} peserta aktif
+                </span>
+
+            </div>
+
+
+            <p class="teacher-information-description">
+                {{ classroom.description|default:"Tidak ada deskripsi kelas." }}
+            </p>
+
+
+            <div>
+                <span class="teacher-information-count">
+                    KODE GABUNG KELAS
+                </span>
+            </div>
+
+            <div class="teacher-join-code">
+                {{ classroom.join_code }}
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- DAFTAR PESERTA -->
+
+    <section class="teacher-section-card">
+
+        <div class="teacher-section-heading">
+
+            <div>
+                <h2>Daftar Mahasiswa</h2>
+                <p>Mahasiswa yang saat ini masih terdaftar di kelas.</p>
+            </div>
+
+            <span class="teacher-count-badge">
+                {{ enrollments|length }} mahasiswa
+            </span>
+
+        </div>
+
+
+        {% for enrollment in enrollments %}
+
+            <article class="teacher-member-row">
+
+                <div class="teacher-member-main">
+
+                    <div class="teacher-member-avatar">
+                        {{ enrollment.student.full_name|default:enrollment.student.username|slice:":1"|upper }}
+                    </div>
+
+                    <div class="teacher-member-information">
+
+                        <strong>
+                            {{ enrollment.student.full_name|default:enrollment.student.username }}
+                        </strong>
+
+                        <span>
+                            NIM: {{ enrollment.student.username }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="teacher-member-actions">
+
+                    <span class="teacher-member-status">
+                        Aktif
+                    </span>
+
+
+                    <div class="action-menu-wrap">
+
+                        <button
+                            type="button"
+                            class="action-menu-trigger"
+                            aria-label="Tindakan untuk {{ enrollment.student.full_name }}"
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                        >
+                            <svg viewBox="0 0 24 24" fill="currentColor"
+                                 aria-hidden="true">
+                                <circle cx="5" cy="12" r="1.8"/>
+                                <circle cx="12" cy="12" r="1.8"/>
+                                <circle cx="19" cy="12" r="1.8"/>
+                            </svg>
+                        </button>
+
+
+                        <div class="action-menu-panel" hidden>
+
+                            <form
+                                method="POST"
+                                action="{% url 'classrooms:enrollment_remove' classroom.pk enrollment.pk %}"
+                                data-ajax-form
+                                data-confirm="Yakin ingin mengeluarkan {{ enrollment.student.full_name }} dari kelas? Riwayat presensinya tetap disimpan."
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="action-menu-item is-danger"
+                                >
+                                    Keluarkan dari Kelas
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            {% if enrollment.periods.all|length > 1 %}
+
+                <details class="record-history">
+
+                    <summary>
+                        Riwayat keanggotaan {{ enrollment.student.full_name }}
+                    </summary>
+
+                    <ul class="record-history-list">
+
+                        {% for period in enrollment.periods.all %}
+
+                            <li>
+                                Bergabung:
+                                {{ period.joined_at|date:"d M Y, H:i" }}
+
+                                {% if period.left_at %}
+                                    — Keluar:
+                                    {{ period.left_at|date:"d M Y, H:i" }}
+                                {% elif period.is_active %}
+                                    — Periode aktif
+                                {% else %}
+                                    — Tanggal keluar belum tercatat
+                                {% endif %}
+                            </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </details>
+
+            {% endif %}
+
+        {% empty %}
+
+            <div class="teacher-empty-state">
+                <h3>Belum Ada Mahasiswa</h3>
+                <p>
+                    Belum ada mahasiswa yang bergabung ke kelas ini.
+                    Bagikan kode gabung kepada mahasiswa.
+                </p>
+            </div>
+
+        {% endfor %}
+
+    </section>
+
+
+    <!-- RIWAYAT PESERTA KELUAR -->
+
+    {% if inactive_enrollments %}
+
+        <section class="teacher-section-card">
+
+            <div class="teacher-section-heading">
+
+                <div>
+                    <h2>Riwayat Mahasiswa yang Keluar</h2>
+                    <p>
+                        Data keanggotaan dan presensi sebelumnya
+                        tetap dipertahankan.
+                    </p>
+                </div>
+
+                <span class="teacher-count-badge">
+                    {{ inactive_enrollments|length }} mahasiswa
+                </span>
+
+            </div>
+
+
+            {% for enrollment in inactive_enrollments %}
+
+                <article class="teacher-member-row">
+
+                    <div class="teacher-member-main">
+
+                        <div class="teacher-member-avatar">
+                            {{ enrollment.student.full_name|default:enrollment.student.username|slice:":1"|upper }}
+                        </div>
+
+                        <div class="teacher-member-information">
+                            <strong>
+                                {{ enrollment.student.full_name|default:enrollment.student.username }}
+                            </strong>
+
+                            <span>
+                                NIM: {{ enrollment.student.username }}
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <span class="session-status-label incomplete">
+                        Tidak Aktif
+                    </span>
+
+                </article>
+
+
+                <details class="record-history">
+
+                    <summary>
+                        Lihat riwayat keanggotaan
+                    </summary>
+
+                    <ul class="record-history-list">
+
+                        {% for period in enrollment.periods.all %}
+
+                            <li>
+                                Bergabung:
+                                {{ period.joined_at|date:"d M Y, H:i" }}
+
+                                {% if period.left_at %}
+                                    — Keluar:
+                                    {{ period.left_at|date:"d M Y, H:i" }}
+                                {% elif period.is_active %}
+                                    — Periode aktif
+                                {% else %}
+                                    — Tanggal keluar belum tercatat
+                                {% endif %}
+                            </li>
+
+                        {% empty %}
+
+                            <li>Belum ada riwayat periode keanggotaan.</li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </details>
+
+            {% endfor %}
+
+        </section>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+(function () {
+
+    function closeAllMenus(except) {
+
+        document.querySelectorAll(".action-menu-panel").forEach(function(menu) {
+
+            if (menu === except) {
+                return;
+            }
+
+            menu.hidden = true;
+
+            const trigger = menu.previousElementSibling;
+
+            if (trigger) {
+                trigger.setAttribute("aria-expanded", "false");
+            }
+
+            const wrapper = menu.closest(".action-menu-wrap");
+
+            if (wrapper) {
+                wrapper.classList.remove("is-open");
+            }
+
+        });
+
+    }
+
+
+    document.querySelectorAll(".action-menu-trigger").forEach(function(button) {
+
+        button.addEventListener("click", function(event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const menu = this.nextElementSibling;
+            const shouldOpen = menu.hidden;
+
+            closeAllMenus(menu);
+
+            menu.hidden = !shouldOpen;
+
+            this.setAttribute(
+                "aria-expanded",
+                String(shouldOpen)
+            );
+
+            this.closest(".action-menu-wrap").classList.toggle(
+                "is-open",
+                shouldOpen
+            );
+
+        });
+
+    });
+
+
+    document.addEventListener("click", function(event) {
+
+        if (!event.target.closest(".action-menu-wrap")) {
+            closeAllMenus();
+        }
+
+    });
+
+
+    document.addEventListener("keydown", function(event) {
+
+        if (event.key === "Escape") {
+            closeAllMenus();
+        }
+
+    });
+
+})();
+</script>
+
+{% endblock %}

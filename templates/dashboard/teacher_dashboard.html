@@ -1,0 +1,294 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard Dosen | SIHADIR{% endblock %}
+{% block page_label %}Dashboard Dosen{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sihadir-polish.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="teacher-page">
+
+    <section class="dashboard-hero">
+
+        <div class="hero-copy">
+
+            <div class="hero-eyebrow">
+                RUANG PENGELOLAAN DOSEN
+            </div>
+
+            <h1>
+                Selamat datang, {{ user.full_name|default:user.username }}.
+            </h1>
+
+            <p>
+                Kelola kelas perkuliahan, pantau kegiatan presensi,
+                dan tinjau catatan kehadiran mahasiswa melalui satu tempat.
+            </p>
+
+            <div class="hero-actions">
+
+                <button
+                    type="button"
+                    class="hero-button-primary"
+                    data-modal-url="{% url 'classrooms:classroom_create' %}?modal=1"
+                >
+                    <svg class="icon">
+                        <use href="#icon-plus"></use>
+                    </svg>
+                    Buat Kelas
+                </button>
+
+                <a
+                    href="{% url 'classrooms:classroom_list' %}"
+                    class="hero-button-glass"
+                >
+                    Lihat Daftar Kelas
+                    <svg class="icon">
+                        <use href="#icon-arrow-right"></use>
+                    </svg>
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+            <div class="hero-visual-orbit"></div>
+
+            <div class="hero-visual-card">
+                <div class="hero-visual-caption">
+                    PENGELOLAAN KELAS
+                </div>
+
+                <div class="hero-visual-line"></div>
+                <div class="hero-visual-line short"></div>
+
+                <div class="hero-visual-status">
+                    <span class="hero-visual-status-dot"></span>
+                    Aktivitas presensi tercatat
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- RINGKASAN -->
+
+    <section class="dashboard-stat-grid">
+
+        <article class="dashboard-stat-card">
+            <div class="stat-topline">
+                <span class="stat-card-label">Kelas Dikelola</span>
+                <span class="stat-icon">
+                    <svg class="icon"><use href="#icon-book"></use></svg>
+                </span>
+            </div>
+
+            <strong class="stat-number">{{ class_count }}</strong>
+
+            <div class="stat-description">
+                Total kelas yang kamu buat.
+            </div>
+        </article>
+
+
+        <article class="dashboard-stat-card">
+            <div class="stat-topline">
+                <span class="stat-card-label">Keanggotaan Aktif</span>
+                <span class="stat-icon cyan">
+                    <svg class="icon"><use href="#icon-users"></use></svg>
+                </span>
+            </div>
+
+            <strong class="stat-number">{{ total_students }}</strong>
+
+            <div class="stat-description">
+                Akumulasi peserta aktif di seluruh kelas.
+            </div>
+        </article>
+
+
+        <article class="dashboard-stat-card">
+            <div class="stat-topline">
+                <span class="stat-card-label">Sesi Presensi Aktif</span>
+                <span class="stat-icon green">
+                    <svg class="icon"><use href="#icon-history"></use></svg>
+                </span>
+            </div>
+
+            <strong class="stat-number">{{ active_session_count }}</strong>
+
+            <div class="stat-description">
+                Sesi yang masih berlangsung.
+            </div>
+        </article>
+
+    </section>
+
+
+    <!-- DAFTAR KELAS -->
+
+    <section class="dashboard-section">
+
+        <div class="dashboard-section-heading">
+
+            <div>
+                <h2>Kelas yang Dikelola</h2>
+                <p>Kelola kelas dan aktivitas presensi perkuliahan.</p>
+            </div>
+
+            <a
+                href="{% url 'classrooms:classroom_list' %}"
+                class="teacher-action teacher-action-glass"
+            >
+                Semua Kelas
+                <svg class="icon"><use href="#icon-arrow-right"></use></svg>
+            </a>
+
+        </div>
+
+
+        <div class="teacher-class-grid">
+
+            {% for classroom in classrooms %}
+
+                <article class="teacher-class-card">
+
+                    <div class="teacher-class-card-top">
+
+                        <div class="teacher-class-title">
+
+                            <h3>{{ classroom.name }}</h3>
+
+                            <p>
+                                {% if classroom.description %}
+                                    {{ classroom.description|truncatechars:100 }}
+                                {% else %}
+                                    Kelas perkuliahan yang kamu kelola.
+                                {% endif %}
+                            </p>
+
+                        </div>
+
+
+                        {% if classroom.has_active_session %}
+
+                            <span class="teacher-session-state is-active">
+                                Sesi Aktif
+                            </span>
+
+                        {% else %}
+
+                            <span class="teacher-session-state is-idle">
+                                Tidak Ada Sesi
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="teacher-class-information">
+
+                        <div class="teacher-class-information-item">
+                            <span class="teacher-class-information-label">
+                                Kode Gabung
+                            </span>
+
+                            <strong class="teacher-class-information-value">
+                                {{ classroom.join_code }}
+                            </strong>
+                        </div>
+
+                        <div class="teacher-class-information-item">
+                            <span class="teacher-class-information-label">
+                                Mahasiswa Aktif
+                            </span>
+
+                            <strong class="teacher-class-information-value">
+                                {{ classroom.active_student_count }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="teacher-class-main-action">
+
+                        <a
+                            href="{% url 'classrooms:classroom_detail' classroom.pk %}"
+                            class="teacher-action teacher-action-primary"
+                        >
+                            Kelola Kelas
+                            <svg class="icon">
+                                <use href="#icon-arrow-right"></use>
+                            </svg>
+                        </a>
+
+                    </div>
+
+
+                    <div class="teacher-class-secondary-actions">
+
+                        <a
+                            href="{% url 'attendance:session_list' classroom.pk %}"
+                            class="teacher-action teacher-action-glass"
+                        >
+                            <svg class="icon">
+                                <use href="#icon-history"></use>
+                            </svg>
+                            Presensi
+                        </a>
+
+                        <a
+                            href="{% url 'attendance:semester_recap' classroom.pk %}"
+                            class="teacher-action teacher-action-glass"
+                        >
+                            <svg class="icon">
+                                <use href="#icon-book-open"></use>
+                            </svg>
+                            Rekap
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {% empty %}
+
+                <div class="teacher-empty-state">
+
+                    <h3>Belum Ada Kelas</h3>
+
+                    <p>
+                        Kamu belum membuat kelas perkuliahan.
+                        Buat kelas pertama untuk mulai mengelola
+                        mahasiswa dan presensi.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="teacher-action teacher-action-primary"
+                        data-modal-url="{% url 'classrooms:classroom_create' %}?modal=1"
+                    >
+                        <svg class="icon"><use href="#icon-plus"></use></svg>
+                        Buat Kelas Pertama
+                    </button>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

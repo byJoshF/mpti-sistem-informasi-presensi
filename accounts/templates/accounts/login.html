@@ -1,0 +1,357 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#102a64">
+
+    <title>Masuk | SIHADIR</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="{% static 'images/sihadir2.png' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-ui.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-polish.css' %}"
+    >
+
+</head>
+
+
+<body class="auth-page">
+
+<div class="auth-shell">
+
+
+    <!-- VISUAL PANEL -->
+
+    <section class="auth-visual">
+
+        <div class="auth-brand">
+
+            <img
+                src="{% static 'images/sihadir1.png' %}"
+                alt="SIHADIR"
+            >
+
+            <span class="auth-brand-caption">
+                SISTEM INFORMASI KEHADIRAN DIGITAL
+            </span>
+
+        </div>
+
+
+        <div class="auth-visual-main">
+
+            <div class="auth-eyebrow">
+                <span class="auth-eyebrow-dot"></span>
+                RUANG AKADEMIK DIGITAL
+            </div>
+
+            <h1 class="auth-visual-title">
+                Kehadiran lebih tertata, perkuliahan lebih terpantau.
+            </h1>
+
+            <p class="auth-visual-description">
+                Kelola kelas, catat kehadiran, dan pantau riwayat
+                presensi perkuliahan melalui satu sistem.
+            </p>
+
+
+            <div class="auth-process-strip">
+
+                <div class="auth-process-item">
+                    <span>01</span>
+                    <strong>Gabung Kelas</strong>
+                </div>
+
+                <div class="auth-process-divider"></div>
+
+                <div class="auth-process-item">
+                    <span>02</span>
+                    <strong>Isi Presensi</strong>
+                </div>
+
+                <div class="auth-process-divider"></div>
+
+                <div class="auth-process-item">
+                    <span>03</span>
+                    <strong>Pantau Riwayat</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="auth-visual-footer">
+            Satu kelas. Satu kode. Semua tercatat.
+            <br>
+            © 2026 SIHADIR
+        </div>
+
+    </section>
+
+
+    <!-- FORM PANEL -->
+
+    <section class="auth-form-panel">
+
+        <div class="auth-card">
+
+            <div class="auth-kicker">
+                SELAMAT DATANG KEMBALI
+            </div>
+
+            <h2 class="auth-heading">
+                Masuk ke akun Anda
+            </h2>
+
+            <p class="auth-description">
+                Pilih peran dan gunakan identitas akun yang telah terdaftar.
+            </p>
+
+
+            {% if form.non_field_errors %}
+
+                <div class="auth-error-box" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+
+            {% endif %}
+
+
+            <form
+                method="POST"
+                action="{% url 'accounts:login' %}"
+                autocomplete="on"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="auth-role-switch">
+
+                    <label class="auth-role-option">
+
+                        <input
+                            type="radio"
+                            name="role"
+                            value="STUDENT"
+                            {% if form.role.value == "STUDENT" %}checked{% endif %}
+                        >
+
+                        <span>Mahasiswa</span>
+
+                    </label>
+
+
+                    <label class="auth-role-option">
+
+                        <input
+                            type="radio"
+                            name="role"
+                            value="TEACHER"
+                            {% if form.role.value == "TEACHER" %}checked{% endif %}
+                        >
+
+                        <span>Dosen</span>
+
+                    </label>
+
+                </div>
+
+
+                {{ form.role.errors }}
+
+
+                <div class="auth-field">
+
+                    <label id="identifier-label" for="id_username">
+                        NIM
+                    </label>
+
+                    {{ form.username }}
+
+                    {{ form.username.errors }}
+
+                    <div class="auth-helper" id="helper-text">
+                        Masukkan NIM dan password akun mahasiswa.
+                    </div>
+
+                </div>
+
+
+                <div class="auth-field">
+
+                    <label for="id_password">
+                        Password
+                    </label>
+
+                    {{ form.password }}
+
+                    {{ form.password.errors }}
+
+                </div>
+
+
+                <button type="submit" class="auth-submit">
+
+                    <span>Masuk ke SIHADIR</span>
+
+                    <svg class="icon" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M5 12h14"/>
+                        <path d="m12 5 7 7-7 7"/>
+                    </svg>
+
+                </button>
+
+            </form>
+
+
+            <div class="auth-alternative" id="register-row">
+
+                Belum memiliki akun?
+
+                <a href="{% url 'accounts:register' %}">
+                    Daftar sebagai mahasiswa
+                </a>
+
+            </div>
+
+
+            <div class="auth-security-note">
+
+                <svg class="icon" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+
+                <span>
+                    Gunakan akun milik sendiri. Jangan membagikan
+                    identitas akun dan password kepada orang lain.
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script src="{% static 'js/password-toggle.js' %}"></script>
+
+<script>
+(function () {
+
+    const roleInputs = document.querySelectorAll(
+        'input[name="role"]'
+    );
+
+    const identifierLabel =
+        document.getElementById("identifier-label");
+
+    const identifierInput =
+        document.getElementById("id_username");
+
+    const helperText =
+        document.getElementById("helper-text");
+
+    const registerRow =
+        document.getElementById("register-row");
+
+
+    function updateRole() {
+
+        const selectedRole = document.querySelector(
+            'input[name="role"]:checked'
+        );
+
+        if (!selectedRole) {
+            return;
+        }
+
+        const isStudent = selectedRole.value === "STUDENT";
+
+        if (isStudent) {
+
+            identifierLabel.textContent = "NIM";
+
+            identifierInput.placeholder = "Masukkan NIM";
+            identifierInput.autocomplete = "username";
+
+            helperText.textContent =
+                "Masukkan NIM dan password akun mahasiswa.";
+
+            registerRow.style.display = "block";
+
+        } else {
+
+            identifierLabel.textContent = "Email / Username";
+
+            identifierInput.placeholder =
+                "Masukkan email atau username dosen";
+
+            identifierInput.autocomplete = "username";
+
+            helperText.textContent =
+                "Gunakan email atau username akun dosen.";
+
+            registerRow.style.display = "none";
+
+        }
+
+    }
+
+
+    roleInputs.forEach(function(radio) {
+
+        radio.addEventListener("change", updateRole);
+
+    });
+
+
+    const selected = document.querySelector(
+        'input[name="role"]:checked'
+    );
+
+    if (!selected) {
+
+        const studentOption = document.querySelector(
+            'input[name="role"][value="STUDENT"]'
+        );
+
+        if (studentOption) {
+            studentOption.checked = true;
+        }
+
+    }
+
+    updateRole();
+
+})();
+</script>
+
+</body>
+</html>

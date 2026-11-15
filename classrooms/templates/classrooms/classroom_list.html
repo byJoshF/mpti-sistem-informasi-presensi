@@ -1,0 +1,554 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Daftar Kelas | SIHADIR{% endblock %}
+{% block page_label %}Daftar Kelas{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sihadir-polish.css' %}">
+
+<style>
+    .teacher-class-list-page {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .class-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 15px;
+        margin-bottom: 2px;
+    }
+
+    .class-grid {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 16px;
+    }
+
+    .class-card,
+    .empty-card {
+        min-width: 0;
+        padding: 21px;
+
+        background: #ffffff;
+        border: 1px solid #e2eaf4;
+        border-radius: 15px;
+
+        box-shadow: 0 5px 17px rgba(22,61,116,.04);
+    }
+
+    .class-card {
+        transition:
+            transform .18s ease,
+            border-color .18s ease,
+            box-shadow .18s ease;
+    }
+
+    .class-card:hover {
+        border-color: #c8dcf5;
+        box-shadow: 0 10px 24px rgba(22,61,116,.07);
+        transform: translateY(-2px);
+    }
+
+    .class-card[hidden],
+    .empty-card[hidden] {
+        display: none !important;
+    }
+
+    .class-card h2 {
+        margin: 0 0 10px;
+        color: #102a64;
+        font-size: 17px;
+        font-weight: 850;
+        overflow-wrap: anywhere;
+    }
+
+    .class-description {
+        color: #6b7d96;
+        line-height: 1.65;
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .join-code {
+        display: inline-flex;
+        align-items: center;
+
+        padding: 9px 13px;
+
+        border-radius: 9px;
+        background: #edf4ff;
+        border: 1px solid #dceaff;
+
+        color: #1559c9;
+
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 2px;
+    }
+
+    .class-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 17px;
+    }
+
+    .class-actions .app-button {
+        min-height: 38px;
+        padding: 9px 12px;
+        font-size: 10px;
+    }
+
+    .class-actions form {
+        margin: 0;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 9px;
+        margin-bottom: 0;
+    }
+
+    .search-form input {
+        flex: 1;
+        min-width: 0;
+        min-height: 44px;
+        padding: 11px 13px;
+
+        color: #263f62;
+        background: #ffffff;
+
+        border: 1px solid #d8e4f2;
+        border-radius: 10px;
+
+        font-size: 12px;
+    }
+
+    .search-form input:focus {
+        outline: none;
+        border-color: #80b2ef;
+        box-shadow: 0 0 0 3px rgba(36,130,237,.1);
+    }
+
+    .search-form [hidden] {
+        display: none !important;
+    }
+
+    .search-hint {
+        color: #8291a5;
+        font-size: 10px;
+        margin: -12px 0 0;
+    }
+
+    .empty-card {
+        text-align: center;
+        padding: 38px 22px;
+        color: #6b7280;
+        grid-column: 1/-1;
+    }
+
+    .empty-card h3 {
+        margin: 0 0 7px;
+        color: #102a64;
+        font-size: 17px;
+    }
+
+    .empty-card p {
+        max-width: 380px;
+        margin: 0 auto;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .result-count {
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        margin: -8px 0 0;
+    }
+
+    @media (max-width: 760px) {
+        .class-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .class-page-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .class-page-header > button {
+            width: 100%;
+        }
+
+        .search-form {
+            flex-wrap: wrap;
+        }
+
+        .search-form input {
+            flex-basis: 100%;
+        }
+
+        .search-form button {
+            flex: 1;
+        }
+
+        .class-card {
+            padding: 17px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="teacher-class-list-page">
+
+    <!-- KEMBALI KE BERANDA -->
+
+    <div class="teacher-page-toolbar">
+
+        <a
+            href="{% url 'home' %}"
+            class="glass-back-link"
+        >
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+                <path d="M19 12H5"/>
+                <path d="m12 19-7-7 7-7"/>
+            </svg>
+
+            Kembali ke Beranda
+        </a>
+
+    </div>
+
+
+    <!-- HEADER -->
+
+    <div class="class-page-header">
+
+        <div class="page-heading">
+            <h1>Daftar Kelas</h1>
+            <p>
+                Kelola kelas perkuliahan yang kamu ampu.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="app-button"
+            data-modal-url="{% url 'classrooms:classroom_create' %}?modal=1"
+        >
+            <svg class="icon">
+                <use href="#icon-plus"></use>
+            </svg>
+            Buat Kelas
+        </button>
+
+    </div>
+
+
+    <!-- PENCARIAN LANGSUNG -->
+
+    <form
+        method="GET"
+        action="{% url 'classrooms:classroom_list' %}"
+        class="search-form"
+        id="classSearchForm"
+    >
+
+        <input
+            type="search"
+            name="q"
+            id="classSearchInput"
+            value="{{ search_query }}"
+            placeholder="Cari nama kelas, deskripsi, atau kode gabung..."
+            autocomplete="off"
+            aria-label="Cari kelas"
+        >
+
+        <button
+            type="submit"
+            class="app-button"
+            id="classSearchSubmit"
+        >
+            Cari
+        </button>
+
+        <button
+            type="button"
+            class="app-button secondary"
+            id="clearClassSearch"
+            {% if not search_query %}hidden{% endif %}
+        >
+            Hapus
+        </button>
+
+    </form>
+
+
+    <p class="search-hint">
+        Hasil akan disaring langsung saat kamu mengetik.
+    </p>
+
+    <p class="result-count" id="classResultCount">
+        Ditemukan {{ classrooms|length }} kelas.
+    </p>
+
+
+    <!-- KARTU KELAS -->
+
+    <div class="class-grid" id="classGrid">
+
+        {% for classroom in classrooms %}
+
+            <article
+                class="class-card"
+                data-search-text="{{ classroom.name }} {{ classroom.description|default:'' }} {{ classroom.join_code }}"
+            >
+
+                <h2>{{ classroom.name }}</h2>
+
+                <p class="class-description">
+                    {{ classroom.description|default:"Tidak ada deskripsi kelas." }}
+                </p>
+
+
+                <div class="class-description">
+                    Kode Gabung
+                </div>
+
+                <div class="join-code">
+                    {{ classroom.join_code }}
+                </div>
+
+
+                <p class="class-description">
+                    Dibuat:
+                    {{ classroom.created_at|date:"d M Y, H:i" }}
+                </p>
+
+
+                <div class="class-actions">
+
+                    <a
+                        href="{% url 'classrooms:classroom_detail' classroom.pk %}"
+                        class="app-button"
+                    >
+                        Kelola Kelas
+                    </a>
+
+
+                    <button
+                        type="button"
+                        class="app-button secondary"
+                        data-modal-url="{% url 'classrooms:classroom_edit' classroom.pk %}?modal=1"
+                    >
+                        Edit
+                    </button>
+
+
+                    {% if not classroom.has_attendance_history %}
+
+                        <form
+                            method="POST"
+                            action="{% url 'classrooms:classroom_delete' classroom.pk %}"
+                            data-ajax-form
+                            data-confirm="Yakin ingin menghapus kelas {{ classroom.name }}? Tindakan ini tidak dapat dibatalkan."
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="app-button danger"
+                            >
+                                Hapus
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if classroom.has_attendance_history %}
+
+                    <p class="class-description">
+                        Kelas memiliki riwayat presensi sehingga tidak dapat dihapus.
+                    </p>
+
+                {% endif %}
+
+            </article>
+
+        {% empty %}
+
+            <div class="empty-card" id="serverEmptyState">
+
+                <h3>
+                    {% if search_query %}
+                        Kelas Tidak Ditemukan
+                    {% else %}
+                        Belum Ada Kelas
+                    {% endif %}
+                </h3>
+
+                <p>
+                    {% if search_query %}
+                        Coba gunakan kata kunci lain.
+                    {% else %}
+                        Silakan buat kelas pertama kamu.
+                    {% endif %}
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+(function () {
+
+    const form = document.getElementById("classSearchForm");
+    const input = document.getElementById("classSearchInput");
+    const grid = document.getElementById("classGrid");
+    const countLabel = document.getElementById("classResultCount");
+    const submitButton = document.getElementById("classSearchSubmit");
+    const clearButton = document.getElementById("clearClassSearch");
+
+    if (!form || !input || !grid || !countLabel || !clearButton) {
+        return;
+    }
+
+    const cards = Array.from(
+        grid.querySelectorAll(".class-card")
+    );
+
+    const serverEmptyState = document.getElementById("serverEmptyState");
+
+    if (cards.length === 0) {
+        return;
+    }
+
+
+    // Pencarian dilakukan di browser, tanpa request baru
+    // ke Django setiap kali pengguna mengetik.
+
+    submitButton.hidden = true;
+
+
+    const noResults = document.createElement("div");
+
+    noResults.className = "empty-card";
+    noResults.hidden = true;
+
+    noResults.innerHTML = `
+        <h3>Kelas Tidak Ditemukan</h3>
+        <p>Coba gunakan nama kelas, deskripsi, atau kode gabung yang lain.</p>
+    `;
+
+    grid.appendChild(noResults);
+
+
+    function normalize(value) {
+
+        return String(value || "")
+            .toLocaleLowerCase("id-ID")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+
+    }
+
+
+    function filterClasses() {
+
+        const query = normalize(input.value);
+
+        let visibleCount = 0;
+
+        cards.forEach(function(card) {
+
+            const searchableText = normalize(
+                card.dataset.searchText || card.textContent
+            );
+
+            const matches = (
+                !query ||
+                searchableText.includes(query)
+            );
+
+            card.hidden = !matches;
+
+            if (matches) {
+                visibleCount += 1;
+            }
+
+        });
+
+
+        countLabel.textContent =
+            `Ditemukan ${visibleCount} kelas.`;
+
+
+        noResults.hidden = visibleCount !== 0;
+
+        clearButton.hidden = query.length === 0;
+
+        if (serverEmptyState) {
+            serverEmptyState.hidden = true;
+        }
+
+    }
+
+
+    form.addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        filterClasses();
+
+    });
+
+
+    input.addEventListener("input", filterClasses);
+
+
+    clearButton.addEventListener("click", function() {
+
+        input.value = "";
+        filterClasses();
+        input.focus();
+
+    });
+
+
+    filterClasses();
+
+})();
+</script>
+
+{% endblock %}
