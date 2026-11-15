@@ -1,0 +1,84 @@
+
+{% extends "base.html" %}
+
+{% block title %}Isi Presensi{% endblock %}
+
+{% block content %}
+
+<div style="
+    max-width:550px;
+    margin:25px auto;
+    background:white;
+    padding:25px;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+">
+
+    <div class="page-heading">
+        <h1>Isi Presensi</h1>
+        <p>Kelas: {{ classroom.name }}</p>
+    </div>
+
+    <p class="note">
+        Masukkan kode empat karakter yang diberikan dosen.
+    </p>
+
+    <form
+        method="POST"
+        action="{{ action_url }}"
+        data-ajax-form
+    >
+
+        {% csrf_token %}
+
+        {% for error in form.non_field_errors %}
+            <div class="message error">{{ error }}</div>
+        {% endfor %}
+
+        <div class="modal-field">
+            <label for="{{ form.attendance_code.id_for_label }}">
+                {{ form.attendance_code.label }}
+            </label>
+
+            {{ form.attendance_code }}
+
+            {% for error in form.attendance_code.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="app-button">
+            Kirim Presensi
+        </button>
+
+    </form>
+
+    <p style="margin-top:20px;">
+        <a
+            href="{% url 'classrooms:student_classroom_list' %}"
+            class="back-link"
+        >
+            &larr; Kembali ke Kelas Saya
+        </a>
+    </p>
+
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .note {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+
+    input[name="attendance_code"] {
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-weight: bold;
+        font-size: 19px;
+    }
+</style>
+{% endblock %}

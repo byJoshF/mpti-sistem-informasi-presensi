@@ -1,0 +1,578 @@
+
+{% extends "base.html" %}
+
+{% block title %}Daftar Kehadiran{% endblock %}
+
+{% block content %}
+
+<style>
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 20px 0;
+    }
+
+    .summary-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+    }
+
+    .summary-card span {
+        display: block;
+        color: #6b7280;
+        font-size: 12px;
+        margin-bottom: 7px;
+    }
+
+    .summary-card strong {
+        font-size: 25px;
+    }
+
+    .student-section {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        padding: 21px;
+        margin-bottom: 20px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        font-size: 19px;
+    }
+
+    .count-label {
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .pending-count {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .resolved-count {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .student-card {
+        padding: 17px;
+        border-radius: 8px;
+        margin-bottom: 13px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .pending-card {
+        background: #fffbeb;
+        border-left: 5px solid #d97706;
+    }
+
+    .resolved-card {
+        background: #f0fdf4;
+        border-left: 5px solid #16a34a;
+    }
+
+    .student-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .student-name {
+        font-weight: bold;
+        font-size: 15px;
+        overflow-wrap: anywhere;
+    }
+
+    .student-nim {
+        display: block;
+        margin-top: 5px;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .badge-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-present {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-permitted {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-sick {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+    .badge-absent {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .pending-action {
+        margin-top: 17px;
+    }
+
+    .pending-action button {
+        width: 100%;
+    }
+
+    .note {
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .menu-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .menu-toggle {
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 6px;
+        background: #e5e7eb;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .menu-dropdown {
+        position: absolute;
+        top: 40px;
+        right: 0;
+        z-index: 30;
+        min-width: 160px;
+        padding: 6px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 7px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+    }
+
+    .menu-dropdown[hidden] {
+        display: none !important;
+    }
+
+    .menu-item {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        text-align: left;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .menu-item:hover {
+        background: #f3f4f6;
+    }
+
+    .history {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .history summary {
+        color: #2563eb;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .history-list {
+        padding-left: 20px;
+        color: #4b5563;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: #6b7280;
+        padding: 25px 10px;
+    }
+
+    @media (max-width: 650px) {
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 400px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<a
+    href="{% url 'attendance:session_list' classroom.pk %}"
+    class="back-link"
+>
+    &larr; Kembali ke Daftar Sesi
+</a>
+
+<div class="page-heading">
+    <h1>Pertemuan {{ session.meeting_number }}</h1>
+    <p>Kelas: {{ classroom.name }}</p>
+
+    <p>
+        Waktu:
+        {{ session.started_at|date:"d M Y, H:i" }}
+    </p>
+
+    {% if session.status == "OPEN" %}
+        <span class="status-badge badge-present">
+            Sesi Terbuka
+        </span>
+    {% elif session.status == "CANCELLED" %}
+        <span class="status-badge badge-absent">
+            Sesi Dibatalkan
+        </span>
+    {% else %}
+        <span class="status-badge badge-pending">
+            Sesi Berakhir
+        </span>
+    {% endif %}
+</div>
+
+<div class="summary-grid">
+
+    <div class="summary-card">
+        <span>Total Peserta</span>
+        <strong>{{ total_students }}</strong>
+    </div>
+
+    <div class="summary-card">
+        <span>Hadir</span>
+        <strong style="color:#15803d;">
+            {{ present_count }}
+        </strong>
+    </div>
+
+    <div class="summary-card">
+        <span>Belum Mengisi</span>
+        <strong style="color:#d97706;">
+            {{ not_submitted_count }}
+        </strong>
+    </div>
+
+    <div class="summary-card">
+        <span>Izin</span>
+        <strong>{{ permitted_count }}</strong>
+    </div>
+
+    <div class="summary-card">
+        <span>Sakit</span>
+        <strong>{{ sick_count }}</strong>
+    </div>
+
+    <div class="summary-card">
+        <span>Alfa</span>
+        <strong>{{ absent_count }}</strong>
+    </div>
+
+</div>
+
+{% if show_pending_only %}
+
+    <div class="message warning">
+        Saat ini hanya menampilkan mahasiswa yang belum mengisi presensi.
+        <a
+            href="{% url 'attendance:session_detail' classroom.pk session.pk %}"
+        >
+            Tampilkan semua mahasiswa
+        </a>
+    </div>
+
+{% endif %}
+
+<!-- KELOMPOK BELUM MENGISI -->
+
+<div class="student-section">
+
+    <div class="section-header">
+
+        <h2>Belum Mengisi</h2>
+
+        <span class="count-label pending-count">
+            {{ not_submitted_count }} mahasiswa
+        </span>
+
+    </div>
+
+    {% for record in pending_records %}
+
+        <div class="student-card pending-card" id="record-{{ record.pk }}">
+
+            <div class="student-header">
+
+                <div>
+                    <div class="student-name">
+                        {{ record.student.full_name }}
+                    </div>
+
+                    <span class="student-nim">
+                        NIM: {{ record.student.username }}
+                    </span>
+
+                    <span class="status-badge badge-pending">
+                        Belum Mengisi
+                    </span>
+                </div>
+
+            </div>
+
+            {% if can_edit_records %}
+
+                <div class="pending-action">
+
+                    <button
+                        type="button"
+                        class="app-button"
+                        data-modal-url="{% url 'attendance:record_update_status' classroom.pk session.pk record.pk %}?modal=1"
+                    >
+                        Tindakan
+                    </button>
+
+                </div>
+
+            {% else %}
+
+                <p class="note">
+                    Menunggu sesi berakhir sebelum dosen dapat
+                    menentukan status mahasiswa.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    {% empty %}
+
+        <div class="empty-state">
+            Semua mahasiswa sudah memiliki status presensi.
+        </div>
+
+    {% endfor %}
+
+</div>
+
+<!-- KELOMPOK STATUS TERSELESAIKAN -->
+
+{% if not show_pending_only %}
+
+    <div class="student-section">
+
+        <div class="section-header">
+
+            <h2>Status Presensi Terselesaikan</h2>
+
+            <span class="count-label resolved-count">
+                {{ present_count|add:permitted_count|add:sick_count|add:absent_count }}
+                mahasiswa
+            </span>
+
+        </div>
+
+        {% for record in resolved_records %}
+
+            <div class="student-card resolved-card" id="record-{{ record.pk }}">
+
+                <div class="student-header">
+
+                    <div>
+
+                        <div class="student-name">
+                            {{ record.student.full_name }}
+                        </div>
+
+                        <span class="student-nim">
+                            NIM: {{ record.student.username }}
+                        </span>
+
+                        {% if record.status == "PRESENT" %}
+                            <span class="status-badge badge-present">
+                                Hadir
+                            </span>
+
+                        {% elif record.status == "PERMITTED" %}
+                            <span class="status-badge badge-permitted">
+                                Izin
+                            </span>
+
+                        {% elif record.status == "SICK" %}
+                            <span class="status-badge badge-sick">
+                                Sakit
+                            </span>
+
+                        {% elif record.status == "ABSENT" %}
+                            <span class="status-badge badge-absent">
+                                Alfa
+                            </span>
+                        {% endif %}
+
+                        {% if record.submitted_at %}
+                            <p class="note">
+                                Mengisi:
+                                {{ record.submitted_at|date:"d M Y, H:i:s" }}
+                            </p>
+                        {% endif %}
+
+                    </div>
+
+                    {% if can_edit_records %}
+
+                        <div class="menu-wrap">
+
+                            <button
+                                type="button"
+                                class="menu-toggle"
+                                aria-label="Tindakan mahasiswa"
+                                aria-expanded="false"
+                            >
+                                &#8942;
+                            </button>
+
+                            <div class="menu-dropdown" hidden>
+
+                                <button
+                                    type="button"
+                                    class="menu-item"
+                                    data-modal-url="{% url 'attendance:record_update_status' classroom.pk session.pk record.pk %}?modal=1"
+                                >
+                                    Ubah Status
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                {% with logs=record.change_logs.all %}
+
+                    {% if logs %}
+
+                        <details class="history">
+
+                            <summary>
+                                Riwayat perubahan status
+                            </summary>
+
+                            <ul class="history-list">
+
+                                {% for log in logs %}
+
+                                    <li>
+                                        <strong>
+                                            {{ log.get_old_status_display }}
+                                            &rarr;
+                                            {{ log.get_new_status_display }}
+                                        </strong>
+                                        <br>
+
+                                        Alasan: {{ log.reason }}
+                                        <br>
+
+                                        Diubah oleh:
+                                        {{ log.changed_by.full_name|default:log.changed_by.username }}
+                                        <br>
+
+                                        Waktu:
+                                        {{ log.changed_at|date:"d M Y, H:i:s" }}
+                                    </li>
+
+                                {% endfor %}
+
+                            </ul>
+
+                        </details>
+
+                    {% endif %}
+
+                {% endwith %}
+
+            </div>
+
+        {% empty %}
+
+            <div class="empty-state">
+                Belum ada mahasiswa dengan status terselesaikan.
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll(".menu-toggle").forEach(button => {
+
+        button.addEventListener("click", function(event) {
+
+            event.stopPropagation();
+
+            const menu = this.nextElementSibling;
+            const shouldOpen = menu.hidden;
+
+            document.querySelectorAll(".menu-dropdown").forEach(item => {
+                item.hidden = true;
+            });
+
+            menu.hidden = !shouldOpen;
+
+        });
+
+    });
+
+    document.addEventListener("click", function() {
+
+        document.querySelectorAll(".menu-dropdown").forEach(menu => {
+            menu.hidden = true;
+        });
+
+    });
+</script>
+{% endblock %}

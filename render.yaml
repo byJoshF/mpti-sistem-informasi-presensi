@@ -1,0 +1,33 @@
+
+services:
+  - type: web
+    name: sihadir-staging
+    runtime: python
+    plan: free
+
+    branch: feature/joshua-f-sitanggang-app
+
+    buildCommand: bash build.sh
+
+    startCommand: gunicorn config.wsgi:application --workers 1 --threads 4 --timeout 120
+
+    healthCheckPath: /accounts/login/
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.14"
+
+      - key: DEBUG
+        value: "False"
+
+      - key: SECRET_KEY
+        generateValue: true
+
+      - key: DATABASE_URL
+        sync: false
+
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"

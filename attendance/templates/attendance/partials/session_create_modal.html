@@ -1,0 +1,55 @@
+
+<div class="modal-heading">
+    <h2>Buat Sesi Presensi</h2>
+
+    <p>
+        Kelas: <strong>{{ classroom.name }}</strong>
+    </p>
+
+    <p>
+        Pilih durasi sesi. Kode presensi akan dibuat otomatis oleh sistem.
+    </p>
+</div>
+
+<form
+    method="POST"
+    action="{{ action_url }}"
+    data-ajax-form
+>
+    {% csrf_token %}
+
+    {% for error in form.non_field_errors %}
+        <div class="field-error">{{ error }}</div>
+    {% endfor %}
+
+    <div class="modal-field">
+        <label for="{{ form.duration_minutes.id_for_label }}">
+            {{ form.duration_minutes.label }}
+        </label>
+
+        {{ form.duration_minutes }}
+
+        {% for error in form.duration_minutes.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="modal-actions">
+
+        <button
+            type="button"
+            class="modal-button modal-cancel"
+            data-modal-close
+        >
+            Batal
+        </button>
+
+        <button
+            type="submit"
+            class="modal-button modal-save"
+        >
+            Buat Sesi
+        </button>
+
+    </div>
+</form>

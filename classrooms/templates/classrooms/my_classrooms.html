@@ -1,103 +1,325 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelas Saya</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 30px;
+{% extends "base.html" %}
+
+{% block title %}Kelas Saya{% endblock %}
+
+{% block content %}
+
+<style>
+    .class-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 23px;
+    }
+
+    .class-card,
+    .empty-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        padding: 21px;
+        margin-bottom: 15px;
+        border-radius: 9px;
+    }
+
+    .class-card.active {
+        border-color: #86efac;
+        background: #f0fdf4;
+    }
+
+    .class-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .class-card-header h2 {
+        margin: 0 0 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .active-label,
+    .inactive-label {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .active-label {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .inactive-label {
+        background: #e5e7eb;
+        color: #4b5563;
+    }
+
+    .class-info {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.7;
+    }
+
+    .class-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 15px;
+    }
+
+    .attendance-disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    .menu-wrap {
+        position: relative;
+    }
+
+    .menu-toggle {
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 6px;
+        background: #f3f4f6;
+        font-size: 23px;
+        cursor: pointer;
+    }
+
+    .menu-dropdown {
+        position: absolute;
+        top: 40px;
+        right: 0;
+        z-index: 20;
+        min-width: 190px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 7px;
+        padding: 6px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+    }
+
+    .menu-dropdown[hidden] {
+        display: none !important;
+    }
+
+    .menu-dropdown form {
+        margin: 0;
+    }
+
+    .menu-item {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        color: #dc2626;
+        text-align: left;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .menu-item:hover {
+        background: #fef2f2;
+    }
+
+    .empty-card {
+        text-align: center;
+        color: #6b7280;
+        padding: 35px 20px;
+    }
+
+    @media (max-width: 550px) {
+        .class-page-header {
+            align-items: flex-start;
+            flex-direction: column;
         }
+    }
+</style>
 
-        .container {
-            max-width: 850px;
-            margin: auto;
-        }
+<div class="class-page-header">
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
+    <div class="page-heading">
+        <h1>Kelas Saya</h1>
+        <p>Daftar kelas perkuliahan yang kamu ikuti.</p>
+    </div>
 
-        .button {
-            display: inline-block;
-            background: #2563eb;
-            color: white;
-            padding: 11px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-        }
+    <button
+        type="button"
+        class="app-button"
+        data-modal-url="{% url 'classrooms:classroom_join' %}?modal=1"
+    >
+        + Gabung Kelas
+    </button>
 
-        .class-card, .empty {
-            background: white;
-            padding: 22px;
-            margin-bottom: 15px;
-            border-radius: 9px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
+</div>
 
-        .message {
-            background: #dcfce7;
-            color: #166534;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-    </style>
-</head>
+{% for enrollment in enrollments %}
 
-<body>
-    <div class="container">
+    <div class="class-card {% if enrollment.has_active_session %}active{% endif %}">
 
-        <div class="header">
+        <div class="class-card-header">
+
             <div>
-                <h1>Kelas Saya</h1>
-                <p>Daftar kelas perkuliahan yang kamu ikuti.</p>
-            </div>
 
-            <a href="{% url 'classrooms:classroom_join' %}" class="button">
-                + Gabung Kelas
-            </a>
-        </div>
+                {% if enrollment.has_active_session %}
+                    <span class="active-label">
+                        SESI PRESENSI SEDANG AKTIF
+                    </span>
+                {% else %}
+                    <span class="inactive-label">
+                        TIDAK ADA SESI AKTIF
+                    </span>
+                {% endif %}
 
-        {% for message in messages %}
-            <div class="message">{{ message }}</div>
-        {% endfor %}
-
-        {% for enrollment in enrollments %}
-            <div class="class-card">
                 <h2>{{ enrollment.classroom.name }}</h2>
 
-                <p>
-                    {{ enrollment.classroom.description|default:"Tidak ada deskripsi kelas." }}
-                </p>
+            </div>
 
-                <p>
-                    Dosen:
-                    {{ enrollment.classroom.teacher.full_name }}
-                </p>
+            <div class="menu-wrap">
 
-                <small>
-                    Bergabung:
+                <button
+                    type="button"
+                    class="menu-toggle"
+                    aria-label="Menu kelas"
+                    aria-expanded="false"
+                >
+                    &#8942;
+                </button>
+
+                <div class="menu-dropdown" hidden>
+
+                    <form
+                        method="POST"
+                        action="{% url 'classrooms:student_leave_class' enrollment.classroom.pk %}"
+                        data-ajax-form
+                        data-confirm="Yakin ingin keluar dari kelas {{ enrollment.classroom.name }}? Riwayat presensimu tetap disimpan."
+                    >
+                        {% csrf_token %}
+
+                        <button type="submit" class="menu-item">
+                            Keluar dari Kelas
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="class-info">
+
+            <p>
+                {{ enrollment.classroom.description|default:"Tidak ada deskripsi kelas." }}
+            </p>
+
+            <p>
+                Dosen:
+                {{ enrollment.classroom.teacher.full_name }}
+            </p>
+
+            <p>
+                Bergabung:
+
+                {% if enrollment.current_period %}
+                    {{ enrollment.current_period.joined_at|date:"d M Y, H:i" }}
+                {% else %}
                     {{ enrollment.joined_at|date:"d M Y, H:i" }}
-                </small>
-            </div>
+                {% endif %}
+            </p>
 
-        {% empty %}
-            <div class="empty">
-                <h3>Belum Ada Kelas</h3>
-                <p>Kamu belum mengikuti kelas perkuliahan apa pun.</p>
-                <p>Silakan gunakan tombol Gabung Kelas.</p>
-            </div>
-        {% endfor %}
+        </div>
+
+        <div class="class-actions">
+
+            {% if enrollment.has_active_session %}
+
+                <button
+                    type="button"
+                    class="app-button"
+                    data-modal-url="{% url 'attendance:student_submit' enrollment.classroom.pk %}?modal=1"
+                >
+                    Isi Presensi
+                </button>
+
+            {% else %}
+
+                <button
+                    type="button"
+                    class="app-button attendance-disabled"
+                    disabled
+                >
+                    Tidak Ada Presensi Aktif
+                </button>
+
+            {% endif %}
+
+            <a
+                href="{% url 'attendance:student_class_history' enrollment.classroom.pk %}"
+                class="app-button secondary"
+            >
+                Riwayat Presensi
+            </a>
+
+        </div>
 
     </div>
-</body>
-</html>
+
+{% empty %}
+
+    <div class="empty-card">
+        <h3>Belum Ada Kelas</h3>
+
+        <p>Kamu belum mengikuti kelas perkuliahan apa pun.</p>
+
+        <button
+            type="button"
+            class="app-button"
+            data-modal-url="{% url 'classrooms:classroom_join' %}?modal=1"
+        >
+            Gabung Kelas
+        </button>
+    </div>
+
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll(".menu-toggle").forEach(button => {
+
+        button.addEventListener("click", function(event) {
+
+            event.stopPropagation();
+
+            const menu = this.nextElementSibling;
+            const shouldOpen = menu.hidden;
+
+            document.querySelectorAll(".menu-dropdown").forEach(item => {
+                item.hidden = true;
+            });
+
+            menu.hidden = !shouldOpen;
+
+        });
+
+    });
+
+    document.addEventListener("click", function() {
+
+        document.querySelectorAll(".menu-dropdown").forEach(menu => {
+            menu.hidden = true;
+        });
+
+    });
+</script>
+{% endblock %}

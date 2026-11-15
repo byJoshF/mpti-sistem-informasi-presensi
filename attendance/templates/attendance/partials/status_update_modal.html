@@ -1,0 +1,67 @@
+
+<div class="modal-heading">
+    <h2>Ubah Status Presensi</h2>
+
+    <p>
+        Mahasiswa: <strong>{{ record.student.full_name }}</strong>
+    </p>
+
+    <p>
+        Pertemuan {{ session.meeting_number }}
+    </p>
+</div>
+
+<form
+    method="POST"
+    action="{{ action_url }}"
+    data-ajax-form
+>
+    {% csrf_token %}
+
+    {% for error in form.non_field_errors %}
+        <div class="field-error">{{ error }}</div>
+    {% endfor %}
+
+    <div class="modal-field">
+        <label for="{{ form.status.id_for_label }}">
+            {{ form.status.label }}
+        </label>
+
+        {{ form.status }}
+
+        {% for error in form.status.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="modal-field">
+        <label for="{{ form.reason.id_for_label }}">
+            {{ form.reason.label }}
+        </label>
+
+        {{ form.reason }}
+
+        {% for error in form.reason.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="modal-actions">
+
+        <button
+            type="button"
+            class="modal-button modal-cancel"
+            data-modal-close
+        >
+            Batal
+        </button>
+
+        <button
+            type="submit"
+            class="modal-button modal-save"
+        >
+            Simpan Perubahan
+        </button>
+
+    </div>
+</form>

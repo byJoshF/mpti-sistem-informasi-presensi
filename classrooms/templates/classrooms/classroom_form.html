@@ -1,88 +1,103 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat Kelas</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 30px;
-        }
+{% extends "base.html" %}
 
-        .container {
-            max-width: 600px;
-            margin: 30px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
+{% block title %}
+    {% if is_edit %}Edit Kelas{% else %}Buat Kelas{% endif %}
+{% endblock %}
 
-        input, textarea {
-            width: 100%;
-            padding: 11px;
-            margin-top: 7px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+{% block content %}
 
-        button {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+<style>
+    .form-panel {
+        max-width: 650px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 25px;
+    }
 
-        .back {
-            color: #2563eb;
-            text-decoration: none;
-            margin-left: 12px;
-        }
+    .form-field {
+        margin-bottom: 18px;
+    }
 
-        .errorlist {
-            color: #dc2626;
-        }
-    </style>
-</head>
+    .form-field label {
+        display: block;
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 7px;
+    }
 
-<body>
-    <div class="container">
+    .form-field input,
+    .form-field textarea {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+    }
+</style>
 
-        <h1>Buat Kelas Baru</h1>
-        <p>Masukkan informasi kelas yang akan dibuat.</p>
+<div class="page-heading">
+    <h1>
+        {% if is_edit %}Edit Kelas{% else %}Buat Kelas Baru{% endif %}
+    </h1>
 
-        <form method="POST">
-            {% csrf_token %}
+    <p>
+        Masukkan informasi kelas perkuliahan.
+    </p>
+</div>
 
-            {{ form.non_field_errors }}
+<div class="form-panel">
 
-            <p>
-                {{ form.name.label_tag }}
-                {{ form.name }}
-                {{ form.name.errors }}
-            </p>
+    <form method="POST" action="{{ action_url }}">
+        {% csrf_token %}
 
-            <p>
-                {{ form.description.label_tag }}
-                {{ form.description }}
-                {{ form.description.errors }}
-            </p>
+        {{ form.non_field_errors }}
 
-            <button type="submit">Simpan Kelas</button>
+        <div class="form-field">
 
-            <a href="{% url 'classrooms:classroom_list' %}" class="back">
-                Kembali
-            </a>
-        </form>
+            <label for="{{ form.name.id_for_label }}">
+                {{ form.name.label }}
+            </label>
 
-    </div>
-</body>
-</html>
+            {{ form.name }}
+
+            {% for error in form.name.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+
+        </div>
+
+        <div class="form-field">
+
+            <label for="{{ form.description.id_for_label }}">
+                {{ form.description.label }}
+            </label>
+
+            {{ form.description }}
+
+            {% for error in form.description.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+
+        </div>
+
+        <button type="submit" class="app-button">
+            {% if is_edit %}
+                Simpan Perubahan
+            {% else %}
+                Buat Kelas
+            {% endif %}
+        </button>
+
+        <a
+            href="{% url 'classrooms:classroom_list' %}"
+            class="app-button secondary"
+        >
+            Kembali
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

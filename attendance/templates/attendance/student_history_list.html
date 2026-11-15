@@ -1,0 +1,143 @@
+
+{% extends "base.html" %}
+
+{% block title %}Riwayat Presensi Saya{% endblock %}
+
+{% block content %}
+
+<style>
+    .history-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .class-card,
+    .empty-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        padding: 21px;
+    }
+
+    .class-card h2 {
+        margin: 0 0 13px;
+        overflow-wrap: anywhere;
+    }
+
+    .active-label,
+    .inactive-label {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-bottom: 12px;
+    }
+
+    .active-label {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .inactive-label {
+        background: #e5e7eb;
+        color: #4b5563;
+    }
+
+    .class-info {
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.7;
+        margin: 15px 0;
+    }
+
+    .empty-card {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 35px;
+        color: #6b7280;
+    }
+
+    @media (max-width: 650px) {
+        .history-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-heading">
+    <h1>Riwayat Presensi Saya</h1>
+    <p>
+        Riwayat dari seluruh kelas yang pernah kamu ikuti,
+        termasuk kelas yang sudah ditinggalkan.
+    </p>
+</div>
+
+<div class="history-grid">
+
+    {% for enrollment in enrollments %}
+
+        <div class="class-card">
+
+            {% if enrollment.is_active %}
+                <span class="active-label">
+                    MASIH MENGIKUTI KELAS
+                </span>
+            {% else %}
+                <span class="inactive-label">
+                    SUDAH KELUAR DARI KELAS
+                </span>
+            {% endif %}
+
+            <h2>{{ enrollment.classroom.name }}</h2>
+
+            <div class="class-info">
+                <div>
+                    Dosen:
+                    {{ enrollment.classroom.teacher.full_name }}
+                </div>
+
+                <div>
+                    Terdaftar sejak:
+                    {{ enrollment.joined_at|date:"d M Y" }}
+                </div>
+
+                {% if enrollment.classroom.description %}
+                    <div>
+                        {{ enrollment.classroom.description }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <a
+                href="{% url 'attendance:student_class_history' enrollment.classroom.pk %}"
+                class="app-button"
+            >
+                Lihat Riwayat Presensi
+            </a>
+
+        </div>
+
+    {% empty %}
+
+        <div class="empty-card">
+            <h3>Belum Ada Riwayat Kelas</h3>
+
+            <p>
+                Kamu belum pernah bergabung dengan kelas perkuliahan.
+            </p>
+
+            <a
+                href="{% url 'classrooms:student_classroom_list' %}"
+                class="app-button"
+            >
+                Kelas Saya
+            </a>
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

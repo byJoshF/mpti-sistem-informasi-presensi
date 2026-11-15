@@ -1,0 +1,403 @@
+
+{% extends "base.html" %}
+
+{% block title %}Rekap Presensi Kelas{% endblock %}
+
+{% block content %}
+
+<style>
+    .report-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        padding: 22px;
+        margin-bottom: 18px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+    }
+
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .report-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .summary-item {
+        background: #f4f6f9;
+        padding: 16px;
+        border-radius: 7px;
+    }
+
+    .summary-number {
+        font-size: 25px;
+        font-weight: bold;
+        margin-top: 7px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+        font-size: 13px;
+    }
+
+    th {
+        background: #f4f6f9;
+    }
+
+    .percentage {
+        font-weight: bold;
+        color: #166534;
+    }
+
+    .pending-list {
+        padding-left: 20px;
+        line-height: 1.8;
+        font-size: 14px;
+    }
+
+    .pending-list a {
+        color: #2563eb;
+    }
+
+    .note {
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .empty {
+        padding: 18px;
+        border-radius: 7px;
+        background: #f4f6f9;
+        color: #6b7280;
+        text-align: center;
+    }
+
+    @media (max-width: 650px) {
+        .form-grid,
+        .report-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full {
+            grid-column: auto;
+        }
+    }
+</style>
+
+<a
+    href="{% url 'attendance:session_list' classroom.pk %}"
+    class="back-link"
+>
+    &larr; Kembali ke Sesi Absensi
+</a>
+
+<div class="page-heading">
+    <h1>Rekap Presensi Kelas</h1>
+    <p>Kelas: {{ classroom.name }}</p>
+</div>
+
+<div class="report-card">
+
+    <h2>Pilih Rentang Tanggal</h2>
+
+    <p class="note">
+        Tentukan tanggal awal dan tanggal akhir.
+        Sistem menghitung seluruh sesi resmi yang tidak dibatalkan
+        dalam rentang tanggal tersebut.
+    </p>
+
+    <form method="POST" action="">
+        {% csrf_token %}
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label for="{{ form.start_date.id_for_label }}">
+                    Tanggal Awal
+                </label>
+
+                {{ form.start_date }}
+
+                {% for error in form.start_date.errors %}
+                    <span class="field-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.end_date.id_for_label }}">
+                    Tanggal Akhir
+                </label>
+
+                {{ form.end_date }}
+
+                {% for error in form.end_date.errors %}
+                    <span class="field-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group full">
+                {% for error in form.non_field_errors %}
+                    <span class="field-error">{{ error }}</span>
+                {% endfor %}
+
+                <button type="submit" class="app-button">
+                    Tampilkan Rekap
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% if report_generated %}
+
+    {% if no_sessions %}
+
+        <div class="report-card">
+            <div class="message info">
+                Tidak ditemukan sesi resmi dalam rentang tanggal yang dipilih.
+                Sesi yang dibatalkan tidak dihitung.
+            </div>
+        </div>
+
+    {% else %}
+
+        <div class="report-card">
+
+            <h2>Ringkasan Rekap</h2>
+
+            <p class="note">
+                Periode:
+                {{ start_date|date:"d M Y" }}
+                sampai
+                {{ end_date|date:"d M Y" }}
+            </p>
+
+            <div class="report-summary">
+
+                <div class="summary-item">
+                    <div>Total Sesi Resmi</div>
+                    <div class="summary-number">
+                        {{ total_sessions }}
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div>Belum Ditinjau</div>
+                    <div class="summary-number">
+                        {{ pending_count }}
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div>Peserta Terdaftar</div>
+                    <div class="summary-number">
+                        {{ student_count }}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        {% if not report_ready %}
+
+            <div class="report-card">
+
+                <div class="message warning">
+                    <strong>Rekap belum dapat ditampilkan.</strong>
+                    Masih terdapat sesi yang berlangsung atau catatan
+                    presensi mahasiswa yang belum ditinjau.
+                </div>
+
+                {% if active_sessions %}
+
+                    <h3>Sesi yang Masih Berlangsung</h3>
+
+                    <ul class="pending-list">
+
+                        {% for session in active_sessions %}
+
+                            <li>
+                                Pertemuan {{ session.meeting_number }}
+                                — {{ session.expires_at|date:"d M Y, H:i" }}
+
+                                <a
+                                    href="{% url 'attendance:session_detail' classroom.pk session.pk %}"
+                                >
+                                    Buka sesi
+                                </a>
+                            </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                {% endif %}
+
+                {% if pending_records %}
+
+                    <h3>Catatan yang Perlu Ditinjau</h3>
+
+                    <p class="note">
+                        Pilih pertemuan untuk memeriksa dan menetapkan
+                        status mahasiswa yang masih Belum Mengisi.
+                    </p>
+
+                    <ul class="pending-list">
+
+                        {% for record in pending_records %}
+
+                            <li>
+                                Pertemuan {{ record.session.meeting_number }}
+                                — {{ record.student.full_name }}
+                                ({{ record.student.username }})
+
+                                <a
+                                    href="{% url 'attendance:session_detail' classroom.pk record.session.pk %}?pending=1#record-{{ record.pk }}"
+                                >
+                                    Tinjau
+                                </a>
+                            </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                {% endif %}
+
+            </div>
+
+        {% else %}
+
+            <div class="report-card">
+
+                <div class="message success">
+                    Seluruh catatan presensi dalam periode ini sudah
+                    memiliki status. Rekap berhasil dibuat.
+                </div>
+
+                <h2>Hasil Rekap Mahasiswa</h2>
+
+                <p class="note">
+                    Persentase dihitung dari jumlah Hadir dibagi
+                    total sesi resmi. Izin, Sakit, dan Alfa ditampilkan
+                    secara terpisah. Mahasiswa yang sudah keluar
+                    tetap disertakan.
+                </p>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>NIM</th>
+                                <th>Nama Mahasiswa</th>
+                                <th>Hadir</th>
+                                <th>Izin</th>
+                                <th>Sakit</th>
+                                <th>Alfa</th>
+                                <th>Total Sesi</th>
+                                <th>Persentase</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in student_results %}
+
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ item.student.username }}</td>
+
+                                    <td>
+                                        {{ item.student.full_name }}
+
+                                        {% if not item.enrollment.is_active %}
+                                            <br>
+                                            <small class="note">
+                                                Sudah keluar dari kelas
+                                            </small>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>{{ item.present_count }}</td>
+                                    <td>{{ item.permitted_count }}</td>
+                                    <td>{{ item.sick_count }}</td>
+                                    <td>{{ item.absent_count }}</td>
+                                    <td>{{ item.total_sessions }}</td>
+
+                                    <td class="percentage">
+                                        {{ item.percentage }}%
+                                    </td>
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+                                    <td colspan="9">
+                                        Belum ada mahasiswa yang terdaftar
+                                        di kelas ini.
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    {% endif %}
+
+{% endif %}
+
+{% endblock %}

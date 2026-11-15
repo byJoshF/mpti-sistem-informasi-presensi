@@ -1,0 +1,256 @@
+
+{% extends "base.html" %}
+
+{% block title %}Beranda Dosen{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <h1>Selamat Datang, {{ user.full_name }}!</h1>
+    <p>
+        Kelola kelas, mahasiswa, dan kegiatan presensi perkuliahan.
+    </p>
+</div>
+
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        padding: 21px;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 29px;
+        font-weight: bold;
+        margin-top: 8px;
+    }
+
+    .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .section-heading h2 {
+        font-size: 19px;
+        margin: 0;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 10px 14px;
+        border: 0;
+        border-radius: 6px;
+        color: white;
+        background: #2563eb;
+        font-size: 13px;
+        text-decoration: none;
+    }
+
+    .button.secondary {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .class-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .class-card,
+    .empty-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        padding: 20px;
+    }
+
+    .class-card h3 {
+        margin-top: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .class-info {
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.7;
+        margin: 12px 0;
+    }
+
+    .session-label {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 6px 9px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+    }
+
+    .session-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .session-inactive {
+        background: #e5e7eb;
+        color: #4b5563;
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 17px;
+    }
+
+    .empty-card {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 35px 20px;
+        color: #6b7280;
+    }
+
+    @media (max-width: 700px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .class-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-label">Kelas yang Dikelola</div>
+        <strong class="stat-value">{{ class_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">Total Mahasiswa Aktif</div>
+        <strong class="stat-value">{{ total_students }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">Sesi Presensi Aktif</div>
+        <strong class="stat-value">{{ active_session_count }}</strong>
+    </div>
+
+</div>
+
+<div class="section-heading">
+
+    <h2>Kelas yang Dikelola</h2>
+
+    <button
+        type="button"
+        class="app-button"
+        data-modal-url="{% url 'classrooms:classroom_create' %}?modal=1"
+    >
+        + Buat Kelas
+    </button>
+
+</div>
+
+<div class="class-grid">
+
+    {% for classroom in classrooms %}
+
+        <div class="class-card">
+
+            {% if classroom.has_active_session %}
+                <span class="session-label session-active">
+                    SESI PRESENSI AKTIF
+                </span>
+            {% else %}
+                <span class="session-label session-inactive">
+                    TIDAK ADA SESI AKTIF
+                </span>
+            {% endif %}
+
+            <h3>{{ classroom.name }}</h3>
+
+            <div class="class-info">
+                <div>
+                    Kode gabung: <strong>{{ classroom.join_code }}</strong>
+                </div>
+
+                <div>
+                    Mahasiswa aktif:
+                    {{ classroom.active_student_count }}
+                </div>
+
+                <div>
+                    Dibuat:
+                    {{ classroom.created_at|date:"d M Y" }}
+                </div>
+            </div>
+
+            <div class="actions">
+
+                <a
+                    href="{% url 'classrooms:classroom_detail' classroom.pk %}"
+                    class="button"
+                >
+                    Kelola Kelas
+                </a>
+
+                <a
+                    href="{% url 'attendance:session_list' classroom.pk %}"
+                    class="button secondary"
+                >
+                    Kelola Presensi
+                </a>
+
+                <a
+                    href="{% url 'attendance:semester_recap' classroom.pk %}"
+                    class="button secondary"
+                >
+                    Rekap
+                </a>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <div class="empty-card">
+            <h3>Belum Ada Kelas</h3>
+
+            <p>
+                Kamu belum membuat kelas perkuliahan.
+            </p>
+
+            <a
+                href="{% url 'classrooms:classroom_create' %}"
+                class="button"
+            >
+                Buat Kelas Pertama
+            </a>
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

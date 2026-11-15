@@ -1,6 +1,7 @@
-
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 
@@ -36,6 +37,12 @@ class Classroom(models.Model):
     description = models.TextField(
         blank=True,
         verbose_name="Deskripsi"
+    )
+
+    is_demo = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name="Kelas demonstrasi"
     )
 
     join_code = models.CharField(
@@ -87,7 +94,7 @@ class Enrollment(models.Model):
 
     joined_at = models.DateTimeField(
         auto_now_add=True,
-        verbose_name="Tanggal bergabung"
+        verbose_name="Tanggal bergabung ke sistem"
     )
 
     is_active = models.BooleanField(
@@ -106,3 +113,50 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.classroom.name}"
+
+
+class EnrollmentPeriod(models.Model):
+    enrollment = models.ForeignKey(
+        Enrollment,
+        on_delete=models.CASCADE,
+        related_name="periods",
+        verbose_name="Keanggotaan"
+    )
+
+    joined_at = models.DateTimeField(
+        default=timezone.now,
+        verbose_name="Waktu mulai bergabung"
+    )
+
+    left_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Waktu keluar dari kelas"
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Periode aktif"
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Tanggal pencatatan"
+    )
+
+    class Meta:
+        ordering = ["-joined_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["enrollment"],
+                condition=Q(is_active=True),
+                name="one_active_period_per_enrollment"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.enrollment.student.username} - "
+            f"{self.enrollment.classroom.name} - "
+            f"{self.joined_at:%d-%m-%Y}"
+        )

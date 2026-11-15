@@ -1,0 +1,236 @@
+
+{% extends "base.html" %}
+
+{% block title %}Beranda Mahasiswa{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <h1>Selamat Datang, {{ user.full_name }}!</h1>
+    <p>
+        Berikut ringkasan kelas dan aktivitas presensimu.
+    </p>
+</div>
+
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        padding: 21px;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 29px;
+        font-weight: bold;
+        margin-top: 8px;
+    }
+
+    .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .section-heading h2 {
+        font-size: 19px;
+        margin: 0;
+    }
+
+    .class-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .class-card,
+    .empty-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        padding: 20px;
+    }
+
+    .class-card h3 {
+        margin: 0 0 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .class-teacher {
+        color: #6b7280;
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+
+    .session-label {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 6px 9px;
+        border-radius: 20px;
+        margin-bottom: 13px;
+    }
+
+    .session-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .session-inactive {
+        background: #e5e7eb;
+        color: #4b5563;
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .action-button {
+        display: inline-block;
+        padding: 10px 13px;
+        border-radius: 6px;
+        font-size: 13px;
+        background: #2563eb;
+        color: white;
+    }
+
+    .secondary-button {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .empty-card {
+        text-align: center;
+        padding: 32px 20px;
+        color: #6b7280;
+        grid-column: 1 / -1;
+    }
+
+    @media (max-width: 650px) {
+        .class-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 450px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-label">Kelas yang Diikuti</div>
+        <strong class="stat-value">{{ class_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">Sesi Presensi Aktif</div>
+        <strong class="stat-value">{{ active_session_count }}</strong>
+    </div>
+
+</div>
+
+<div class="section-heading">
+    <h2>Kelas Saya</h2>
+    <a
+        href="{% url 'classrooms:student_classroom_list' %}"
+        class="action-button secondary-button"
+    >
+        Lihat Semua Kelas
+    </a>
+</div>
+
+<div class="class-grid">
+
+    {% for enrollment in enrollments %}
+
+        <div class="class-card">
+
+            {% if enrollment.has_active_session %}
+                <span class="session-label session-active">
+                    SESI PRESENSI AKTIF
+                </span>
+            {% else %}
+                <span class="session-label session-inactive">
+                    TIDAK ADA SESI AKTIF
+                </span>
+            {% endif %}
+
+            <h3>{{ enrollment.classroom.name }}</h3>
+
+            <div class="class-teacher">
+                Dosen: {{ enrollment.classroom.teacher.full_name }}
+            </div>
+
+            <div class="class-teacher">
+                Bergabung:
+                {{ enrollment.joined_at|date:"d M Y" }}
+            </div>
+
+            <div class="actions">
+
+                {% if enrollment.has_active_session %}
+                    <button
+                        type="button"
+                        class="action-button"
+                        data-modal-url="{% url 'attendance:student_submit' enrollment.classroom.pk %}?modal=1"
+                    >
+                        Isi Presensi
+                    </button>
+                {% endif %}
+
+                <a
+                    href="{% url 'classrooms:student_classroom_list' %}"
+                    class="action-button secondary-button"
+                >
+                    Buka Kelas Saya
+                </a>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <div class="empty-card">
+            <h3>Belum Mengikuti Kelas</h3>
+
+            <p>
+                Kamu belum bergabung dengan kelas perkuliahan.
+            </p>
+
+            <button
+                type="button"
+                class="app-button"
+                data-modal-url="{% url 'classrooms:classroom_join' %}?modal=1"
+            >
+                Gabung Kelas
+            </button>
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

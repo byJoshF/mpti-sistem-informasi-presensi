@@ -1,0 +1,418 @@
+
+{% extends "base.html" %}
+
+{% block title %}Sesi Presensi{% endblock %}
+
+{% block content %}
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+    .session-card,
+    .active-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        padding: 21px;
+        margin-bottom: 15px;
+    }
+
+    .active-card {
+        border-color: #93c5fd;
+        background: #eff6ff;
+    }
+
+    .code-display {
+        display: inline-block;
+        padding: 12px 17px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        border-radius: 7px;
+        font-size: 26px;
+        font-weight: bold;
+        letter-spacing: 4px;
+    }
+
+    .session-info {
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .session-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .session-header h3 {
+        margin: 0 0 10px;
+    }
+
+    .status-label {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-ongoing {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-complete {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-incomplete {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .session-card.state-cancelled {
+        border-left: 5px solid #dc2626;
+    }
+
+    .session-card.state-ongoing {
+        border-left: 5px solid #2563eb;
+    }
+
+    .session-card.state-complete {
+        border-left: 5px solid #16a34a;
+    }
+
+    .session-card.state-incomplete {
+        border-left: 5px solid #d97706;
+    }
+
+    .session-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 16px;
+    }
+
+    .menu-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .menu-toggle {
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 6px;
+        background: #f3f4f6;
+        color: #333;
+        font-size: 23px;
+        cursor: pointer;
+    }
+
+    .menu-dropdown {
+        position: absolute;
+        top: 40px;
+        right: 0;
+        z-index: 30;
+        min-width: 180px;
+        padding: 6px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 7px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+    }
+
+    .menu-dropdown[hidden] {
+        display: none !important;
+    }
+
+    .menu-item {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        text-align: left;
+        color: #dc2626;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .menu-item:hover {
+        background: #fef2f2;
+    }
+
+    .empty-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        padding: 30px;
+        text-align: center;
+        color: #6b7280;
+    }
+
+    @media (max-width: 550px) {
+        .page-header {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<a
+    href="{% url 'classrooms:classroom_detail' classroom.pk %}"
+    class="back-link"
+>
+    &larr; Kembali ke Detail Kelas
+</a>
+
+<div class="page-header">
+
+    <div class="page-heading">
+        <h1>Sesi Presensi</h1>
+        <p>Kelas: {{ classroom.name }}</p>
+    </div>
+
+    <a
+        href="{% url 'attendance:semester_recap' classroom.pk %}"
+        class="app-button secondary"
+    >
+        Rekap Presensi
+    </a>
+
+</div>
+
+{% if active_session %}
+
+    <div class="active-card">
+
+        <span class="status-label status-ongoing">
+            SESI SEDANG BERLANGSUNG
+        </span>
+
+        <h2>Pertemuan {{ active_session.meeting_number }}</h2>
+
+        <p class="session-info">Kode Presensi:</p>
+
+        <div class="code-display">
+            {{ active_session.attendance_code }}
+        </div>
+
+        <div class="session-info">
+            <p>
+                Durasi:
+                {{ active_session.duration_minutes }} menit
+            </p>
+
+            <p>
+                Dimulai:
+                {{ active_session.started_at|date:"d M Y, H:i:s" }}
+            </p>
+
+            <p>
+                Berakhir:
+                {{ active_session.expires_at|date:"d M Y, H:i:s" }}
+            </p>
+        </div>
+
+        <div class="session-actions">
+            <a
+                href="{% url 'attendance:session_detail' classroom.pk active_session.pk %}"
+                class="app-button"
+            >
+                Pantau Kehadiran Mahasiswa
+            </a>
+        </div>
+
+    </div>
+
+{% else %}
+
+    <div class="session-card">
+
+        <h2>Buat Sesi Absensi</h2>
+
+        <p class="session-info">
+            Belum ada sesi presensi aktif. Buat sesi baru
+            dengan menentukan durasinya.
+        </p>
+
+        <button
+            type="button"
+            class="app-button"
+            data-modal-url="{% url 'attendance:session_create' classroom.pk %}?modal=1"
+        >
+            + Buat Sesi Absensi
+        </button>
+
+    </div>
+
+{% endif %}
+
+<div class="session-card">
+
+    <h2>Riwayat Sesi</h2>
+
+    <p class="session-info">
+        Hijau: semua status terisi.
+        Biru: sedang berlangsung.
+        Kuning: belum lengkap.
+        Merah: dibatalkan.
+    </p>
+
+    {% for session in sessions %}
+
+        <div class="session-card state-{{ session.display_state }}">
+
+            <div class="session-header">
+
+                <div>
+                    <h3>
+                        Pertemuan {{ session.meeting_number }}
+                    </h3>
+
+                    <span class="status-label status-{{ session.display_state }}">
+                        {{ session.display_state_label }}
+                    </span>
+                </div>
+
+                {% if session.status == "OPEN" or session.status == "EXPIRED" %}
+
+                    <div class="menu-wrap">
+
+                        <button
+                            type="button"
+                            class="menu-toggle"
+                            aria-label="Menu sesi"
+                            aria-expanded="false"
+                        >
+                            &#8942;
+                        </button>
+
+                        <div class="menu-dropdown" hidden>
+
+                            <button
+                                type="button"
+                                class="menu-item"
+                                data-modal-url="{% url 'attendance:session_cancel' classroom.pk session.pk %}?modal=1"
+                            >
+                                Batalkan Sesi
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            <div class="session-info">
+
+                <p>
+                    Kode:
+                    <strong>{{ session.attendance_code }}</strong>
+                </p>
+
+                <p>
+                    Durasi:
+                    {{ session.duration_minutes }} menit
+                </p>
+
+                <p>
+                    Waktu mulai:
+                    {{ session.started_at|date:"d M Y, H:i" }}
+                </p>
+
+                {% if session.status != "CANCELLED" %}
+
+                    <p>
+                        Peserta tercatat:
+                        {{ session.total_records }}
+                    </p>
+
+                    <p>
+                        Belum mengisi:
+                        {{ session.pending_records }}
+                    </p>
+
+                {% else %}
+
+                    <p>
+                        Alasan pembatalan:
+                        {{ session.cancellation_reason|default:"Tidak ada keterangan." }}
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+            <div class="session-actions">
+
+                <a
+                    href="{% url 'attendance:session_detail' classroom.pk session.pk %}"
+                    class="app-button"
+                >
+                    Lihat Daftar Kehadiran
+                </a>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <div class="empty-card">
+            Belum ada riwayat sesi presensi.
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll(".menu-toggle").forEach(button => {
+
+        button.addEventListener("click", function(event) {
+
+            event.stopPropagation();
+
+            const menu = this.nextElementSibling;
+            const shouldOpen = menu.hidden;
+
+            document.querySelectorAll(".menu-dropdown").forEach(item => {
+                item.hidden = true;
+            });
+
+            menu.hidden = !shouldOpen;
+
+        });
+
+    });
+
+    document.addEventListener("click", function() {
+
+        document.querySelectorAll(".menu-dropdown").forEach(menu => {
+            menu.hidden = true;
+        });
+
+    });
+</script>
+{% endblock %}

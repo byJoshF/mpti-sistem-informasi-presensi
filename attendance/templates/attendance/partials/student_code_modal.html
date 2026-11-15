@@ -1,0 +1,77 @@
+
+<div class="modal-heading">
+    <h2>Isi Presensi</h2>
+
+    <p>
+        Kelas: <strong>{{ classroom.name }}</strong>
+    </p>
+
+    <p>
+        Masukkan kode empat karakter yang diberikan dosen.
+    </p>
+</div>
+
+<form
+    method="POST"
+    action="{{ action_url }}"
+    data-ajax-form
+>
+    {% csrf_token %}
+
+    {% for error in form.non_field_errors %}
+        <div class="field-error">{{ error }}</div>
+    {% endfor %}
+
+    <div class="modal-field">
+        <label for="{{ form.attendance_code.id_for_label }}">
+            {{ form.attendance_code.label }}
+        </label>
+
+        {{ form.attendance_code }}
+
+        {% for error in form.attendance_code.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="modal-actions">
+
+        <button
+            type="button"
+            class="modal-button modal-cancel"
+            data-modal-close
+        >
+            Batal
+        </button>
+
+        <button
+            type="submit"
+            class="modal-button modal-save"
+        >
+            Kirim Presensi
+        </button>
+
+    </div>
+</form>
+
+<script>
+    const attendanceCodeInput = document.querySelector(
+        '#appModalContent input[name="attendance_code"]'
+    );
+
+    if (attendanceCodeInput) {
+
+        attendanceCodeInput.style.textTransform = "uppercase";
+        attendanceCodeInput.style.letterSpacing = "3px";
+        attendanceCodeInput.style.fontWeight = "bold";
+        attendanceCodeInput.style.fontSize = "19px";
+        attendanceCodeInput.maxLength = 4;
+
+        attendanceCodeInput.focus();
+
+        attendanceCodeInput.addEventListener("input", function() {
+            this.value = this.value.toUpperCase();
+        });
+
+    }
+</script>

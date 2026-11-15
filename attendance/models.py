@@ -1,4 +1,3 @@
-
 from datetime import timedelta
 
 from django.conf import settings
@@ -11,12 +10,15 @@ from classrooms.models import Classroom
 
 
 def generate_attendance_code():
-    """Membuat kode absensi enam karakter secara acak."""
-    allowed_chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    """Membuat kode absensi empat karakter dengan pola huruf-angka."""
+    letters = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+    digits = "23456789"
 
-    return get_random_string(
-        length=6,
-        allowed_chars=allowed_chars
+    return (
+        get_random_string(1, allowed_chars=letters)
+        + get_random_string(1, allowed_chars=digits)
+        + get_random_string(1, allowed_chars=letters)
+        + get_random_string(1, allowed_chars=digits)
     )
 
 
@@ -26,7 +28,6 @@ class AttendanceSession(models.Model):
         CLOSED = "CLOSED", "Ditutup"
         EXPIRED = "EXPIRED", "Kedaluwarsa"
         CANCELLED = "CANCELLED", "Dibatalkan"
-        FINAL = "FINAL", "Final"
 
     DURATION_CHOICES = [
         (5, "5 menit"),
@@ -90,7 +91,6 @@ class AttendanceSession(models.Model):
 
     def save(self, *args, **kwargs):
         if self._state.adding:
-            # Membuat nomor pertemuan otomatis.
             if not self.meeting_number:
                 last_number = (
                     AttendanceSession.objects
@@ -99,9 +99,9 @@ class AttendanceSession(models.Model):
                     ["max_number"]
                     or 0
                 )
+
                 self.meeting_number = last_number + 1
 
-            # Membuat kode absensi yang belum digunakan.
             if not self.attendance_code:
                 for _ in range(10):
                     code = generate_attendance_code()
@@ -116,7 +116,6 @@ class AttendanceSession(models.Model):
                         "Gagal membuat kode absensi yang unik."
                     )
 
-            # Menghitung waktu berakhir berdasarkan durasi.
             if not self.expires_at:
                 self.expires_at = (
                     self.started_at
@@ -182,21 +181,6 @@ class AttendanceRecord(models.Model):
         verbose_name="Waktu mengisi"
     )
 
-    finalized_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name="finalized_attendance_records",
-        null=True,
-        blank=True,
-        verbose_name="Dosen yang memfinalisasi"
-    )
-
-    finalized_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name="Waktu finalisasi"
-    )
-
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Tanggal dibuat"
@@ -260,6 +244,6 @@ class AttendanceChangeLog(models.Model):
     def __str__(self):
         return (
             f"{self.attendance_record.student.username}: "
-            f"{self.get_old_status_display()} → "
+            f"{self.get_old_status_display()} -> "
             f"{self.get_new_status_display()}"
         )

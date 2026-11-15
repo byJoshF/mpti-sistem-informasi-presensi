@@ -1,0 +1,1124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SIHADIR | Sistem Informasi Kehadiran Digital</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="{% static 'images/sihadir2.png' %}"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+        .topbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-inner {
+            max-width: 1200px;
+            min-height: 68px;
+            margin: auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .brand {
+            color: #1d4ed8;
+            font-size: 18px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .navigation {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: #4b5563;
+            padding: 10px 12px;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .account-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .account-info {
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        .account-name {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .account-role {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .logout-button {
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #dc2626;
+            padding: 9px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #fef2f2;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 24px 40px;
+            min-height: calc(100vh - 160px);
+        }
+
+        .page-heading {
+            margin-bottom: 24px;
+        }
+
+        .page-heading h1 {
+            margin: 0 0 8px;
+            font-size: 26px;
+        }
+
+        .page-heading p {
+            margin: 0;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .message {
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .message.info {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .footer {
+            border-top: 1px solid #e5e7eb;
+            background: white;
+            text-align: center;
+            padding: 18px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        /* TOMBOL UMUM */
+
+        .app-button {
+            display: inline-block;
+            padding: 10px 14px;
+            border: 0;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .app-button:hover {
+            background: #1d4ed8;
+        }
+
+        .app-button.secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .app-button.secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .app-button.danger {
+            background: #dc2626;
+        }
+
+        .app-button.danger:hover {
+            background: #b91c1c;
+        }
+
+        /* MODAL UNIVERSAL */
+
+        .app-modal[hidden] {
+            display: none !important;
+        }
+
+        .app-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .app-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(2px);
+        }
+
+        .app-modal-panel {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 12px;
+            padding: 26px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.2);
+            animation: modalIn 0.18s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .app-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 6px;
+            background: #f3f4f6;
+            color: #4b5563;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .app-modal-close:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-heading {
+            padding-right: 32px;
+            margin-bottom: 20px;
+        }
+
+        .modal-heading h2 {
+            font-size: 21px;
+            margin: 0 0 9px;
+        }
+
+        .modal-heading p {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 5px 0;
+        }
+
+        .modal-field {
+            margin-bottom: 17px;
+        }
+
+        .modal-field label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .modal-field input,
+        .modal-field textarea,
+        .modal-field select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            background: white;
+            color: #1f2937;
+        }
+
+        .modal-field input:focus,
+        .modal-field textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+
+        .field-error,
+        .errorlist {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 6px;
+            padding-left: 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+            margin-top: 23px;
+        }
+
+        .modal-button {
+            padding: 10px 15px;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .modal-save {
+            background: #2563eb;
+            color: white;
+        }
+
+        .modal-save:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        .modal-status {
+            padding: 12px;
+            border-radius: 7px;
+            background: #fef2f2;
+            color: #991b1b;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .loading-text {
+            color: #6b7280;
+            padding: 25px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 850px) {
+            .topbar-inner {
+                flex-wrap: wrap;
+                padding: 14px 18px;
+            }
+
+            .navigation {
+                order: 3;
+                width: 100%;
+            }
+
+            .account-area {
+                margin-left: auto;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .main-container {
+                padding: 0 15px 30px;
+                margin-top: 22px;
+            }
+
+            .topbar-inner {
+                padding: 12px 15px;
+                gap: 12px;
+            }
+
+            .navigation {
+                gap: 3px;
+            }
+
+            .nav-link {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .account-info {
+                display: none;
+            }
+
+            .page-heading h1 {
+                font-size: 22px;
+            }
+
+            .app-modal-panel {
+                padding: 22px 18px;
+            }
+        }
+        .modal-field input[name="attendance_code"] {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: bold;
+            font-size: 19px;
+        }
+        /*PENYEMPURNAAN TAMPILAN GLOBAL*/
+
+        body {
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button,
+        a,
+        input,
+        select,
+        textarea {
+            transition:
+                background-color 0.18s ease,
+                border-color 0.18s ease,
+                box-shadow 0.18s ease,
+                color 0.18s ease;
+        }
+
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.2);
+            outline-offset: 2px;
+        }
+
+        a {
+            color: #2563eb;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        input:not([type="checkbox"]):not([type="radio"]),
+        select,
+        textarea {
+            max-width: 100%;
+        }
+
+        input:not([type="checkbox"]):not([type="radio"]),
+        select,
+        textarea {
+            border-radius: 7px;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .page-heading {
+            line-height: 1.5;
+        }
+
+        .page-heading h1 {
+            font-weight: 700;
+            letter-spacing: -0.4px;
+        }
+
+        .page-heading p {
+            max-width: 720px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #2563eb;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .back-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .app-button {
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .app-button:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.25);
+            outline-offset: 2px;
+        }
+
+        .app-button.secondary {
+            border: 1px solid #e5e7eb;
+        }
+
+        .message {
+            border: 1px solid transparent;
+            line-height: 1.5;
+        }
+
+        .message.success {
+            border-color: #bbf7d0;
+        }
+
+        .message.error {
+            border-color: #fecaca;
+        }
+
+        .message.warning {
+            border-color: #fde68a;
+        }
+
+        .message.info {
+            border-color: #bfdbfe;
+        }
+
+        .errorlist {
+            margin: 6px 0;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
+        .field-error {
+            line-height: 1.5;
+        }
+
+        table th {
+            font-weight: 600;
+        }
+
+        table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .card,
+        .class-card,
+        .session-card,
+        .student-card,
+        .summary-card,
+        .report-card,
+        .history-card {
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 550px) {
+            .app-button {
+                max-width: 100%;
+            }
+
+            .main-container {
+                width: 100%;
+            }
+
+            .app-modal {
+                padding: 10px;
+            }
+
+            .app-modal-panel {
+                max-height: 94vh;
+            }
+        }
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .brand-image {
+            display: block;
+            width: 170px;
+            max-width: 100%;
+            height: auto;
+            max-height: 55px;
+            object-fit: contain;
+        }
+
+        @media (max-width: 550px) {
+            .brand-image {
+                width: 145px;
+                max-height: 46px;
+            }
+        }
+
+        /* TOMBOL TAMPILKAN PASSWORD */
+
+        .password-input-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-input-wrap input {
+            width: 100%;
+            padding-right: 48px !important;
+        }
+
+        .password-visibility-toggle {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 32px;
+            height: 32px;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .password-visibility-toggle:hover {
+            background: #f3f4f6;
+            color: #2563eb;
+        }
+
+        .password-visibility-toggle svg {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="topbar-inner">
+
+            <a href="{% url 'home' %}" class="brand">
+                <img
+                    src="{% static 'images/sihadir1.png' %}"
+                    alt="SIHADIR"
+                    class="brand-image"
+                >
+            </a>
+
+            <nav class="navigation">
+
+                <a
+                    href="{% url 'home' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                >
+                    Beranda
+                </a>
+
+                {% if user.role == "STUDENT" %}
+
+                    <a
+                        href="{% url 'classrooms:student_classroom_list' %}"
+                        class="nav-link {% if request.resolver_match.view_name == 'classrooms:student_classroom_list' %}active{% endif %}"
+                    >
+                        Kelas Saya
+                    </a>
+
+                    <a
+                        href="{% url 'attendance:student_history_list' %}"
+                        class="nav-link {% if request.resolver_match.view_name == 'attendance:student_history_list' or request.resolver_match.view_name == 'attendance:student_class_history' %}active{% endif %}"
+                    >
+                        Riwayat Presensi
+                    </a>
+
+                    <a
+                        href="{% url 'accounts:profile' %}"
+                        data-modal-url="{% url 'accounts:profile' %}?modal=1"
+                        class="nav-link {% if request.resolver_match.namespace == 'accounts' and request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'password_change' %}active{% endif %}"
+                    >
+                        Profil
+                    </a>
+
+                {% elif user.role == "TEACHER" %}
+
+                    <a
+                        href="{% url 'classrooms:classroom_list' %}"
+                        class="nav-link {% if request.resolver_match.namespace == 'classrooms' or request.resolver_match.namespace == 'attendance' and request.resolver_match.url_name != 'student_history_list' and request.resolver_match.url_name != 'student_class_history' %}active{% endif %}"
+                    >
+                        Daftar Kelas
+                    </a>
+
+                {% endif %}
+
+            </nav>
+
+            <div class="account-area">
+
+                <div class="account-info">
+                    <div class="account-name">
+                        {{ user.full_name|default:user.username }}
+                    </div>
+
+                    <div class="account-role">
+                        {% if user.role == "STUDENT" %}
+                            Mahasiswa
+                        {% elif user.role == "TEACHER" %}
+                            Dosen
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form
+                    method="POST"
+                    action="{% url 'accounts:logout' %}"
+                >
+                    {% csrf_token %}
+
+                    <button type="submit" class="logout-button">
+                        Keluar
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {% block content %}{% endblock %}
+
+    </main>
+
+    <footer class="footer">
+        Sistem Informasi Presensi Perkuliahan
+    </footer>
+
+    <!-- MODAL UNIVERSAL -->
+    <div class="app-modal" id="appModal" hidden>
+
+        <div
+            class="app-modal-backdrop"
+            data-modal-close
+        ></div>
+
+        <div
+            class="app-modal-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Formulir aplikasi"
+        >
+
+            <button
+                type="button"
+                class="app-modal-close"
+                aria-label="Tutup"
+                data-modal-close
+            >
+                &times;
+            </button>
+
+            <div id="appModalContent"></div>
+
+        </div>
+    </div>
+
+    <script src="{% static 'js/password-toggle.js' %}"></script>
+
+    <script>
+        const appModal = document.getElementById("appModal");
+        const appModalContent = document.getElementById("appModalContent");
+
+
+        function openAppModal(html) {
+            appModalContent.innerHTML = html;
+            appModal.hidden = false;
+            document.body.style.overflow = "hidden";
+
+            if (window.initPasswordToggles) {
+                window.initPasswordToggles(appModalContent);
+            }
+        }
+
+
+        function closeAppModal() {
+            appModal.hidden = true;
+            appModalContent.innerHTML = "";
+            document.body.style.overflow = "";
+        }
+
+
+        function escapeHTML(value) {
+            return String(value).replace(/[&<>"']/g, function(char) {
+                return {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#039;"
+                }[char];
+            });
+        }
+
+
+        // MEMBUKA FORMULIR MODAL
+
+        document.addEventListener("click", async function(event) {
+
+            const trigger = event.target.closest("[data-modal-url]");
+
+            if (!trigger) {
+                return;
+            }
+
+            event.preventDefault();
+
+            openAppModal(
+                '<div class="loading-text">Memuat formulir...</div>'
+            );
+
+            try {
+
+                const response = await fetch(
+                    trigger.dataset.modalUrl,
+                    {
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    }
+                );
+
+                const contentType = response.headers.get("content-type") || "";
+
+                if (contentType.includes("application/json")) {
+
+                    const result = await response.json();
+
+                    openAppModal(
+                        `<div class="modal-status">
+                            ${escapeHTML(result.message || "Formulir tidak dapat dibuka.")}
+                        </div>`
+                    );
+
+                    return;
+                }
+
+                const html = await response.text();
+
+                if (!response.ok) {
+                    throw new Error("Server gagal memuat formulir.");
+                }
+
+                openAppModal(html);
+
+            } catch (error) {
+
+                openAppModal(
+                    '<div class="modal-status">' +
+                    'Tidak dapat memuat formulir. Periksa koneksi dan coba kembali.' +
+                    '</div>'
+                );
+
+            }
+
+        });
+
+
+        // MENUTUP MODAL
+
+        document.addEventListener("click", function(event) {
+
+            if (event.target.closest("[data-modal-close]")) {
+                closeAppModal();
+            }
+
+        });
+
+
+        document.addEventListener("keydown", function(event) {
+
+            if (event.key === "Escape" && !appModal.hidden) {
+                closeAppModal();
+            }
+
+        });
+
+
+        // MENGIRIM FORMULIR MELALUI AJAX
+
+        async function sendAjaxForm(options) {
+
+            const {
+                action,
+                method,
+                formData,
+                successUrl,
+                submitButton,
+                showLoading
+            } = options;
+
+            const originalText = submitButton
+                ? submitButton.textContent
+                : "";
+
+            if (showLoading) {
+
+                openAppModal(
+                    '<div class="loading-text">Menyimpan perubahan...</div>'
+                );
+
+            } else if (submitButton) {
+
+                submitButton.disabled = true;
+                submitButton.textContent = "Menyimpan...";
+
+            }
+
+            try {
+
+                const response = await fetch(
+                    action,
+                    {
+                        method: method,
+                        body: formData,
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "Accept": "application/json"
+                        }
+                    }
+                );
+
+                let result = {};
+
+                try {
+                    result = await response.json();
+                } catch (error) {
+                    result = {
+                        success: false,
+                        message: "Server memberikan respons yang tidak sesuai."
+                    };
+                }
+
+                if (response.ok && result.success) {
+
+                    closeAppModal();
+
+                    // Arahkan ke URL khusus bila tindakan
+                    // membuat halaman sebelumnya tidak tersedia.
+                    if (result.redirect_url || successUrl) {
+
+                        window.location.assign(
+                            result.redirect_url || successUrl
+                        );
+
+                    } else {
+
+                        // Tetap berada di halaman yang sama.
+                        window.location.reload();
+
+                    }
+
+                    return;
+                }
+
+                if (result.html) {
+
+                    openAppModal(result.html);
+
+                } else {
+
+                    openAppModal(
+                        `<div class="modal-status">
+                            ${escapeHTML(
+                                result.message || "Terjadi kesalahan saat menyimpan data."
+                            )}
+                        </div>`
+                    );
+
+                }
+
+            } catch (error) {
+
+                openAppModal(
+                    '<div class="modal-status">' +
+                    'Terjadi kesalahan saat menghubungi server. Silakan coba kembali.' +
+                    '</div>'
+                );
+
+            } finally {
+
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                }
+
+            }
+
+        }
+
+
+        // PENGIRIMAN FORMULIR
+
+        document.addEventListener("submit", function(event) {
+
+            const form = event.target.closest("form[data-ajax-form]");
+
+            if (!form) {
+                return;
+            }
+
+            event.preventDefault();
+
+            // Data diambil sebelum modal konfirmasi dibuka.
+            // Dengan demikian formulir tidak perlu dikirim ulang
+            // melalui elemen form yang sudah dilepaskan dari DOM.
+            const requestOptions = {
+                action: form.action,
+                method: (form.method || "POST").toUpperCase(),
+                formData: new FormData(form),
+                successUrl: form.dataset.successUrl || "",
+                submitButton: form.querySelector('button[type="submit"]'),
+                showLoading: false
+            };
+
+
+            // FORMULIR YANG MEMERLUKAN KONFIRMASI
+
+            if (form.dataset.confirm) {
+
+                const confirmation = `
+                    <div class="modal-heading">
+                        <h2>Konfirmasi Tindakan</h2>
+                        <p>${escapeHTML(form.dataset.confirm)}</p>
+                    </div>
+
+                    <div class="modal-actions">
+
+                        <button
+                            type="button"
+                            class="modal-button modal-cancel"
+                            data-modal-close
+                        >
+                            Batal
+                        </button>
+
+                        <button
+                            type="button"
+                            class="modal-button modal-save"
+                            id="confirmAjaxAction"
+                        >
+                            Ya, Lanjutkan
+                        </button>
+
+                    </div>
+                `;
+
+                openAppModal(confirmation);
+
+                document.getElementById(
+                    "confirmAjaxAction"
+                ).addEventListener("click", function() {
+
+                    this.disabled = true;
+
+                    requestOptions.submitButton = null;
+                    requestOptions.showLoading = true;
+
+                    sendAjaxForm(requestOptions);
+
+                });
+
+                return;
+            }
+
+
+            // FORMULIR TANPA KONFIRMASI
+
+            sendAjaxForm(requestOptions);
+
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

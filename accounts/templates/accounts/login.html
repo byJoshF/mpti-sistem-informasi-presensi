@@ -1,11 +1,17 @@
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Informasi Presensi</title>
+    <title>SIHADIR | Sistem Informasi Kehadiran Digital</title>
 
+    <link
+        rel="icon"
+        type="image/png"
+        href="{% static 'images/sihadir2.png' %}"
+    >
     <style>
         * {
             box-sizing: border-box;
@@ -13,21 +19,22 @@
 
         body {
             margin: 0;
+            min-height: 100vh;
             font-family: Arial, sans-serif;
-            color: #1e293b;
+            background: #f4f6f9;
+            color: #1f2937;
         }
 
         .login-layout {
             min-height: 100vh;
             display: grid;
-            grid-template-columns: 45% 55%;
+            grid-template-columns: 0.9fr 1.1fr;
         }
 
-        /* Panel kiri */
         .brand-panel {
-            background: linear-gradient(135deg, #303da8, #008d88);
+            background: linear-gradient(145deg, #1e40af, #0f766e);
             color: white;
-            padding: 35px;
+            padding: 42px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -36,106 +43,113 @@
         .brand-logo {
             font-size: 24px;
             font-weight: bold;
+            letter-spacing: 0.5px;
         }
 
         .brand-content {
             max-width: 470px;
         }
 
-        .brand-small {
-            font-size: 10px;
-            letter-spacing: 1px;
-            opacity: 0.85;
+        .brand-eyebrow {
+            font-size: 11px;
+            letter-spacing: 1.3px;
+            opacity: 0.8;
         }
 
         .brand-content h1 {
-            font-size: 36px;
-            line-height: 1.3;
+            font-size: 38px;
+            line-height: 1.25;
             margin: 20px 0;
         }
 
         .brand-description {
-            line-height: 1.6;
+            max-width: 420px;
             font-size: 14px;
+            line-height: 1.8;
             opacity: 0.9;
         }
 
         .preview-card {
             background: white;
-            color: #263453;
-            border-radius: 14px;
-            padding: 24px;
-            margin-top: 45px;
+            color: #1f2937;
+            border-radius: 12px;
+            padding: 23px;
+            margin-top: 35px;
+        }
+
+        .preview-label {
+            color: #6b7280;
+            font-size: 11px;
+            font-weight: bold;
         }
 
         .preview-card h2 {
             font-size: 21px;
-            margin: 15px 0 8px;
+            margin: 13px 0 7px;
         }
 
         .preview-card p {
-            color: #7b8495;
-            font-size: 12px;
+            color: #6b7280;
+            font-size: 13px;
         }
 
         .preview-status {
             display: inline-block;
-            background: #e2f7ee;
-            color: #16835c;
-            padding: 9px 14px;
-            border-radius: 30px;
+            margin-top: 8px;
+            padding: 7px 12px;
+            border-radius: 20px;
+            background: #dcfce7;
+            color: #166534;
             font-size: 12px;
-            margin-top: 10px;
+            font-weight: bold;
         }
 
-        .brand-bottom {
-            font-size: 13px;
+        .brand-footer {
+            font-size: 12px;
+            line-height: 1.8;
+            opacity: 0.8;
         }
 
-        .copyright {
-            font-size: 10px;
-            opacity: 0.75;
-            margin-top: 35px;
-        }
-
-        /* Panel kanan */
         .login-panel {
-            background: #ffffff;
             display: flex;
-            justify-content: center;
             align-items: center;
-            padding: 35px;
+            justify-content: center;
+            padding: 40px 25px;
         }
 
         .login-content {
             width: 100%;
             max-width: 430px;
+            background: white;
+            padding: 35px;
+            border-radius: 13px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
         }
 
         .eyebrow {
-            color: #554fe0;
-            font-size: 10px;
-            letter-spacing: 1px;
+            color: #2563eb;
+            font-size: 11px;
             font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .login-content h2 {
-            font-size: 28px;
-            margin: 15px 0 8px;
+            font-size: 27px;
+            margin: 14px 0 8px;
         }
 
         .subtitle {
+            color: #6b7280;
             font-size: 13px;
-            color: #8992a2;
-            line-height: 1.5;
+            line-height: 1.7;
             margin-bottom: 25px;
         }
 
-        /* Pilihan peran */
         .role-tabs {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            background: #eef1f8;
+            background: #f3f4f6;
             padding: 4px;
             border-radius: 8px;
             margin-bottom: 23px;
@@ -147,137 +161,194 @@
         }
 
         .role-option input {
-            display: none;
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .role-option span {
             display: block;
-            padding: 10px;
-            border-radius: 7px;
-            color: #68738b;
+            padding: 11px;
+            border-radius: 6px;
+            color: #6b7280;
             font-size: 13px;
         }
 
         .role-option input:checked + span {
             background: white;
-            color: #5147df;
+            color: #1d4ed8;
             font-weight: bold;
-            box-shadow: 0 1px 4px #00000012;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.08);
         }
 
-        /* Form */
         .field {
-            margin-bottom: 20px;
+            margin-bottom: 19px;
         }
 
         .field label {
             display: block;
-            font-size: 12px;
-            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
         }
 
         .field input {
             width: 100%;
-            padding: 13px;
-            border: 1px solid #dce2ed;
-            border-radius: 8px;
-            outline: none;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
             font-size: 14px;
         }
 
         .field input:focus {
-            border-color: #554fe0;
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
 
         .helper-text {
+            color: #9ca3af;
             font-size: 11px;
-            color: #929bad;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .login-button {
             width: 100%;
-            padding: 14px;
+            padding: 13px;
             border: none;
-            border-radius: 8px;
-            background: #554fe0;
+            border-radius: 7px;
+            background: #2563eb;
             color: white;
             font-size: 14px;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 5px;
         }
 
         .login-button:hover {
-            background: #443bc7;
+            background: #1d4ed8;
         }
 
         .register-row {
             display: flex;
-            gap: 8px;
+            flex-wrap: wrap;
+            gap: 6px;
             align-items: center;
-            font-size: 12px;
-            margin-top: 23px;
+            font-size: 13px;
+            margin-top: 22px;
         }
 
         .register-row a {
-            color: #5147df;
+            color: #2563eb;
             font-weight: bold;
-            text-decoration: none;
-        }
-
-        .register-row a:hover {
-            text-decoration: underline;
-        }
-
-        .preview-note {
-            color: #929bad;
-            font-size: 11px;
-            margin-top: 32px;
-        }
-
-        .security-note {
-            color: #929bad;
-            text-align: center;
-            font-size: 11px;
-            margin-top: 65px;
         }
 
         .errorlist {
-            color: #c62828;
+            color: #dc2626;
             font-size: 12px;
             padding-left: 18px;
         }
 
-        /* Tampilan HP */
-        @media (max-width: 800px) {
+        .login-error {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 7px;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 850px) {
             .login-layout {
                 grid-template-columns: 1fr;
             }
 
             .brand-panel {
-                min-height: 330px;
-                padding: 25px;
+                padding: 28px;
             }
 
             .brand-content h1 {
-                font-size: 27px;
+                font-size: 29px;
             }
 
             .preview-card {
-                margin-top: 20px;
+                margin-top: 22px;
             }
 
-            .brand-bottom {
+            .brand-footer {
                 margin-top: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand-panel {
+                padding: 22px;
             }
 
             .login-panel {
-                padding: 40px 22px;
+                padding: 20px 13px;
             }
 
-            .security-note {
-                margin-top: 35px;
+            .login-content {
+                padding: 24px 19px;
             }
+
+            .login-content h2 {
+                font-size: 23px;
+            }
+        }
+
+        .brand-logo img {
+            display: block;
+            width: 180px;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* TOMBOL TAMPILKAN PASSWORD */
+
+        .password-input-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-input-wrap input {
+            width: 100%;
+            padding-right: 48px !important;
+        }
+
+        .password-visibility-toggle {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 32px;
+            height: 32px;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .password-visibility-toggle:hover {
+            background: #f3f4f6;
+            color: #2563eb;
+        }
+
+        .password-visibility-toggle svg {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
     </style>
 </head>
@@ -286,69 +357,79 @@
 
 <div class="login-layout">
 
-    <!-- Panel kiri -->
     <section class="brand-panel">
 
-        <div class="brand-logo">presensi.</div>
+        <div class="brand-logo">
+            <img
+                src="{% static 'images/sihadir1.png' %}"
+                alt="SIHADIR"
+            >
+        </div>
 
         <div class="brand-content">
-            <div class="brand-small">
+
+            <div class="brand-eyebrow">
                 PRESENSI PERKULIAHAN, LEBIH TERHUBUNG
             </div>
 
-            <h1>Setiap kehadiran,<br>satu langkah maju.</h1>
+            <h1>Setiap kehadiran, satu langkah maju.</h1>
 
             <p class="brand-description">
-                Dari ruang kelas hingga rekap akhir.
-                Kelola kehadiran perkuliahan dalam satu
-                pengalaman yang terintegrasi.
+                Kelola kelas, catat kehadiran, dan pantau
+                aktivitas perkuliahan melalui satu sistem
+                yang terintegrasi.
             </p>
 
             <div class="preview-card">
-                <div class="brand-small">AKTIVITAS PERKULIAHAN</div>
 
-                <h2>Basis Data</h2>
+                <div class="preview-label">
+                    AKTIVITAS PERKULIAHAN
+                </div>
 
-                <p>Contoh aktivitas perkuliahan</p>
+                <h2>Presensi Perkuliahan</h2>
+
+                <p>
+                    Seluruh catatan kehadiran tersimpan
+                    dalam satu tempat.
+                </p>
 
                 <span class="preview-status">
-                    ✓ Hadir tercatat
+                    ✓ Kehadiran tercatat
                 </span>
 
-                <hr style="border:0;border-top:1px solid #eee;margin:20px 0;">
-
-                <p>Lebih praktis untuk mahasiswa dan dosen.</p>
             </div>
+
         </div>
 
-        <div class="brand-bottom">
+        <div class="brand-footer">
             Satu kode. Satu kelas. Semua tercatat.
-
-            <div class="copyright">
-                © 2026 Presensi - Sistem Informasi Presensi Perkuliahan
-            </div>
+            <br>
+            © 2026 Sistem Informasi Presensi Perkuliahan
         </div>
 
     </section>
 
-    <!-- Panel kanan -->
     <section class="login-panel">
 
         <div class="login-content">
 
-            <div class="eyebrow">SELAMAT DATANG KEMBALI</div>
+            <div class="eyebrow">
+                SELAMAT DATANG KEMBALI
+            </div>
 
-            <h2>Masuk ke ruang belajar.</h2>
+            <h2>Masuk ke akun Anda</h2>
 
             <p class="subtitle">
-                Gunakan akun kampus untuk melanjutkan aktivitas Anda.
+                Gunakan NIM atau identitas akun yang telah terdaftar.
             </p>
 
             {% if form.non_field_errors %}
-                {{ form.non_field_errors }}
+                <div class="login-error">
+                    {{ form.non_field_errors }}
+                </div>
             {% endif %}
 
-            <form method="post">
+            <form method="POST">
                 {% csrf_token %}
 
                 <div class="role-tabs">
@@ -378,16 +459,21 @@
                 {{ form.role.errors }}
 
                 <div class="field">
+
                     <label id="identifier-label" for="id_username">
                         NIM
                     </label>
 
                     {{ form.username }}
                     {{ form.username.errors }}
+
                 </div>
 
                 <div class="field">
-                    <label for="id_password">Password</label>
+
+                    <label for="id_password">
+                        Password
+                    </label>
 
                     {{ form.password }}
                     {{ form.password.errors }}
@@ -395,6 +481,7 @@
                     <div class="helper-text" id="helper-text">
                         Masukkan NIM dan password yang telah terdaftar.
                     </div>
+
                 </div>
 
                 <button type="submit" class="login-button">
@@ -407,16 +494,8 @@
                 <span>Belum memiliki akun?</span>
 
                 <a href="{% url 'accounts:register' %}">
-                    Daftar Akun
+                    Daftar sebagai mahasiswa
                 </a>
-            </div>
-
-            <p class="preview-note">
-                Pratinjau alur menggunakan contoh akun kampus.
-            </p>
-
-            <div class="security-note">
-                Akses aman · Presensi perkuliahan yang lebih sederhana
             </div>
 
         </div>
@@ -427,6 +506,7 @@
 
 <script>
     function updateRole() {
+
         const selectedRole = document.querySelector(
             'input[name="role"]:checked'
         );
@@ -441,26 +521,36 @@
         const registerRow = document.getElementById("register-row");
 
         if (isStudent) {
+
             label.textContent = "NIM";
             input.placeholder = "Masukkan NIM";
+
             helper.textContent =
-                "Masukkan NIM dan password yang telah terdaftar.";
+                "Masukkan NIM dan password akun mahasiswa.";
+
             registerRow.style.display = "flex";
+
         } else {
+
             label.textContent = "Email / Username";
             input.placeholder = "Masukkan email atau username";
+
             helper.textContent =
-                "Gunakan email atau username dan password akun dosen.";
+                "Gunakan email atau username akun dosen.";
+
             registerRow.style.display = "none";
+
         }
     }
 
-    document.querySelectorAll('input[name="role"]').forEach(function (radio) {
-        radio.addEventListener("change", updateRole);
-    });
+    document.querySelectorAll('input[name="role"]').forEach(
+        radio => radio.addEventListener("change", updateRole)
+    );
 
     updateRole();
 </script>
+
+<script src="{% static 'js/password-toggle.js' %}"></script>
 
 </body>
 </html>

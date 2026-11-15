@@ -1,0 +1,47 @@
+
+<div class="modal-heading">
+    <h2>Gabung Kelas</h2>
+
+    <p>
+        Masukkan kode gabung yang diberikan oleh dosen.
+    </p>
+</div>
+
+<form
+    method="POST"
+    action="{{ action_url }}"
+    data-ajax-form
+>
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    <div class="modal-field">
+        <label for="{{ form.join_code.id_for_label }}">
+            {{ form.join_code.label }}
+        </label>
+
+        {{ form.join_code }}
+
+        {% for error in form.join_code.errors %}
+            <div class="field-error">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="modal-actions">
+        <button
+            type="button"
+            class="modal-button modal-cancel"
+            data-modal-close
+        >
+            Batal
+        </button>
+
+        <button
+            type="submit"
+            class="modal-button modal-save"
+        >
+            Gabung Kelas
+        </button>
+    </div>
+</form>
