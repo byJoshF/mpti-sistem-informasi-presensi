@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}Daftar Kelas{% endblock %}
@@ -26,6 +25,11 @@
         border: 1px solid #e5e7eb;
         border-radius: 9px;
         padding: 21px;
+    }
+
+    .class-card[hidden],
+    .empty-card[hidden] {
+        display: none !important;
     }
 
     .class-card h2 {
@@ -59,7 +63,7 @@
     .search-form {
         display: flex;
         gap: 9px;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
     }
 
     .search-form input {
@@ -68,6 +72,16 @@
         padding: 11px;
         border: 1px solid #d1d5db;
         border-radius: 7px;
+    }
+
+    .search-form [hidden] {
+        display: none !important;
+    }
+
+    .search-hint {
+        color: #6b7280;
+        font-size: 12px;
+        margin: 0 0 14px;
     }
 
     .empty-card {
@@ -101,6 +115,7 @@
     }
 </style>
 
+
 <div class="class-page-header">
 
     <div class="page-heading">
@@ -118,41 +133,58 @@
 
 </div>
 
+
 <form
     method="GET"
     action="{% url 'classrooms:classroom_list' %}"
     class="search-form"
+    id="classSearchForm"
 >
     <input
         type="search"
         name="q"
+        id="classSearchInput"
         value="{{ search_query }}"
         placeholder="Cari nama kelas, deskripsi, atau kode gabung..."
+        autocomplete="off"
+        aria-label="Cari kelas"
     >
 
-    <button type="submit" class="app-button">
+    <button
+        type="submit"
+        class="app-button"
+        id="classSearchSubmit"
+    >
         Cari
     </button>
 
-    {% if search_query %}
-        <a
-            href="{% url 'classrooms:classroom_list' %}"
-            class="app-button secondary"
-        >
-            Reset
-        </a>
-    {% endif %}
+    <button
+        type="button"
+        class="app-button secondary"
+        id="clearClassSearch"
+        {% if not search_query %}hidden{% endif %}
+    >
+        Hapus
+    </button>
 </form>
 
-<p class="result-count">
+<p class="search-hint">
+    Hasil akan disaring langsung saat kamu mengetik.
+</p>
+
+<p class="result-count" id="classResultCount">
     Ditemukan {{ classrooms|length }} kelas.
 </p>
 
-<div class="class-grid">
+
+<div class="class-grid" id="classGrid">
 
     {% for classroom in classrooms %}
 
-        <div class="class-card">
+        <div
+            class="class-card"
+            data-search-text="{{ classroom.name }} {{ classroom.description|default:'' }} {{ classroom.join_code }}"
+        >
 
             <h2>{{ classroom.name }}</h2>
 
@@ -161,6 +193,7 @@
             </p>
 
             <p>Kode Gabung:</p>
+
             <div class="join-code">
                 {{ classroom.join_code }}
             </div>
@@ -219,7 +252,7 @@
 
     {% empty %}
 
-        <div class="empty-card">
+        <div class="empty-card" id="serverEmptyState">
             <h3>
                 {% if search_query %}
                     Kelas Tidak Ditemukan
@@ -240,5 +273,139 @@
     {% endfor %}
 
 </div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+(function () {
+
+    const form = document.getElementById("classSearchForm");
+    const input = document.getElementById("classSearchInput");
+    const grid = document.getElementById("classGrid");
+    const countLabel = document.getElementById("classResultCount");
+    const submitButton = document.getElementById("classSearchSubmit");
+    const clearButton = document.getElementById("clearClassSearch");
+
+    if (!form || !input || !grid || !countLabel) {
+        return;
+    }
+
+    const cards = Array.from(
+        grid.querySelectorAll(".class-card")
+    );
+
+    const serverEmptyState = document.getElementById("serverEmptyState");
+
+    // Jika server mengembalikan halaman tanpa kartu kelas,
+    // pertahankan pencarian GET sebagai fallback.
+    if (cards.length === 0) {
+
+        if (clearButton) {
+            clearButton.addEventListener("click", function () {
+                window.location.assign(form.action);
+            });
+        }
+
+        return;
+    }
+
+    // Setelah JavaScript aktif, pencarian langsung dilakukan
+    // di browser tanpa mengirim request baru ke Django.
+    if (submitButton) {
+        submitButton.hidden = true;
+    }
+
+    const noResults = document.createElement("div");
+
+    noResults.className = "empty-card";
+    noResults.hidden = true;
+
+    noResults.innerHTML = `
+        <h3>Kelas Tidak Ditemukan</h3>
+        <p>Coba gunakan nama kelas, deskripsi, atau kode gabung yang lain.</p>
+    `;
+
+    grid.appendChild(noResults);
+
+
+    function normalize(value) {
+
+        return String(value || "")
+            .toLocaleLowerCase("id-ID")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+
+    }
+
+
+    function filterClasses() {
+
+        const query = normalize(input.value);
+
+        let visibleCount = 0;
+
+        cards.forEach(function (card) {
+
+            const searchableText = normalize(
+                card.dataset.searchText || card.textContent
+            );
+
+            const matches = (
+                !query ||
+                searchableText.includes(query)
+            );
+
+            card.hidden = !matches;
+
+            if (matches) {
+                visibleCount += 1;
+            }
+
+        });
+
+        countLabel.textContent =
+            `Ditemukan ${visibleCount} kelas.`;
+
+        noResults.hidden = visibleCount !== 0;
+
+        clearButton.hidden = query.length === 0;
+
+        if (serverEmptyState) {
+            serverEmptyState.hidden = true;
+        }
+
+    }
+
+
+    form.addEventListener("submit", function (event) {
+
+        event.preventDefault();
+
+        filterClasses();
+
+    });
+
+
+    input.addEventListener("input", filterClasses);
+
+
+    clearButton.addEventListener("click", function () {
+
+        // Muat ulang tanpa parameter q agar seluruh kelas tampil kembali,
+        // termasuk jika halaman sebelumnya dibuka dari URL pencarian lama.
+        window.location.assign(form.action);
+
+    });
+
+
+    // Terapkan juga pada kata kunci yang sudah ada di URL.
+    filterClasses();
+
+})();
+</script>
 
 {% endblock %}

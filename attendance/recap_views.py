@@ -1,3 +1,5 @@
+from datetime import datetime, time, timedelta
+
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Count, Q
@@ -13,6 +15,7 @@ from .models import AttendanceSession, AttendanceRecord
 
 @login_required
 def semester_recap(request, classroom_id):
+
     if request.user.role != "TEACHER":
         return HttpResponseForbidden(
             "Halaman ini hanya untuk dosen."
@@ -24,7 +27,7 @@ def semester_recap(request, classroom_id):
         teacher=request.user
     )
 
-    # Kedaluwarsakan sesi yang waktunya sudah habis.
+    # Perbarui status sesi yang sudah melewati batas waktu.
     now = timezone.now()
 
     AttendanceSession.objects.filter(
@@ -57,17 +60,38 @@ def semester_recap(request, classroom_id):
         start_date = form.cleaned_data["start_date"]
         end_date = form.cleaned_data["end_date"]
 
+        # Gunakan rentang datetime, bukan fungsi DATE pada kolom
+        # started_at, agar query lebih efisien.
+        start_datetime = timezone.make_aware(
+            datetime.combine(
+                start_date,
+                time.min
+            )
+        )
+
+        end_datetime = timezone.make_aware(
+            datetime.combine(
+                end_date + timedelta(days=1),
+                time.min
+            )
+        )
+
         sessions = list(
             AttendanceSession.objects.filter(
                 classroom=classroom,
-                started_at__date__gte=start_date,
-                started_at__date__lte=end_date
+                started_at__gte=start_datetime,
+                started_at__lt=end_datetime
             )
             .exclude(
                 status=AttendanceSession.Status.CANCELLED
             )
             .order_by("meeting_number")
         )
+
+        session_ids = [
+            session.pk
+            for session in sessions
+        ]
 
         context.update({
             "report_generated": True,
@@ -77,6 +101,7 @@ def semester_recap(request, classroom_id):
         })
 
         if not sessions:
+
             context["no_sessions"] = True
 
             return render(
@@ -88,25 +113,48 @@ def semester_recap(request, classroom_id):
         enrollments = list(
             Enrollment.objects.filter(
                 classroom=classroom
-            ).select_related(
-                "student"
-            ).order_by(
-                "student__username"
             )
+            .select_related("student")
+            .order_by("student__username")
         )
+
         context["student_count"] = len(enrollments)
 
-        # Siapkan catatan untuk setiap mahasiswa pada setiap
-        # sesi resmi dalam periode tersebut.
-        #
-        # Catatan yang sudah ada tidak diubah.
-        # Ini juga menangani mahasiswa yang bergabung kembali
-        # dan sesi yang terlewat ketika ia keluar.
+        student_ids = [
+            enrollment.student_id
+            for enrollment in enrollments
+        ]
+
+        # Ambil seluruh pasangan sesi-mahasiswa yang sudah memiliki
+        # catatan. Ini dilakukan sekali, bukan berulang kali.
+        existing_pairs = set(
+            AttendanceRecord.objects.filter(
+                session_id__in=session_ids,
+                student_id__in=student_ids
+            ).values_list(
+                "session_id",
+                "student_id"
+            )
+        )
+
+        # Buat hanya catatan yang benar-benar belum ada.
+        # Catatan dan status yang sudah tersedia tidak ditimpa.
         with transaction.atomic():
+
             batch = []
 
             for session in sessions:
+
                 for enrollment in enrollments:
+
+                    pair = (
+                        session.pk,
+                        enrollment.student_id
+                    )
+
+                    if pair in existing_pairs:
+                        continue
+
                     batch.append(
                         AttendanceRecord(
                             session=session,
@@ -115,28 +163,33 @@ def semester_recap(request, classroom_id):
                     )
 
                     if len(batch) >= 500:
+
                         AttendanceRecord.objects.bulk_create(
                             batch,
                             ignore_conflicts=True
                         )
+
                         batch = []
 
             if batch:
+
                 AttendanceRecord.objects.bulk_create(
                     batch,
                     ignore_conflicts=True
                 )
 
-        session_ids = [session.pk for session in sessions]
 
+        # Ambil seluruh catatan yang masih perlu ditinjau.
         pending_records = list(
             AttendanceRecord.objects.filter(
                 session_id__in=session_ids,
                 status=AttendanceRecord.Status.NOT_SUBMITTED
-            ).select_related(
+            )
+            .select_related(
                 "student",
                 "session"
-            ).order_by(
+            )
+            .order_by(
                 "session__meeting_number",
                 "student__username"
             )
@@ -165,41 +218,67 @@ def semester_recap(request, classroom_id):
             "report_ready": report_ready,
         })
 
-        # Rekap hanya ditampilkan jika semua catatan sudah ditinjau
-        # dan tidak ada sesi yang masih berlangsung.
+        # Rekap hanya ditampilkan jika seluruh catatan sudah
+        # ditinjau dan tidak ada sesi yang masih berlangsung.
         if report_ready:
-            student_results = []
 
-            for enrollment in enrollments:
-                result = AttendanceRecord.objects.filter(
-                    session_id__in=session_ids,
-                    student=enrollment.student
-                ).aggregate(
-                    total_records=Count("id"),
+            # Hitung seluruh status mahasiswa dalam satu query.
+            # Ini menggantikan query agregasi di dalam loop.
+            summary_rows = (
+                AttendanceRecord.objects
+                .filter(
+                    session_id__in=session_ids
+                )
+                .order_by()
+                .values("student_id")
+                .annotate(
                     present_count=Count(
                         "id",
                         filter=Q(
                             status=AttendanceRecord.Status.PRESENT
                         )
                     ),
+
                     permitted_count=Count(
                         "id",
                         filter=Q(
                             status=AttendanceRecord.Status.PERMITTED
                         )
                     ),
+
                     sick_count=Count(
                         "id",
                         filter=Q(
                             status=AttendanceRecord.Status.SICK
                         )
                     ),
+
                     absent_count=Count(
                         "id",
                         filter=Q(
                             status=AttendanceRecord.Status.ABSENT
                         )
                     ),
+                )
+            )
+
+            summary_by_student = {
+                row["student_id"]: row
+                for row in summary_rows
+            }
+
+            student_results = []
+
+            for enrollment in enrollments:
+
+                result = summary_by_student.get(
+                    enrollment.student_id,
+                    {
+                        "present_count": 0,
+                        "permitted_count": 0,
+                        "sick_count": 0,
+                        "absent_count": 0,
+                    }
                 )
 
                 present_count = result["present_count"]
@@ -220,13 +299,18 @@ def semester_recap(request, classroom_id):
                     "percentage": percentage,
                 })
 
+            # Persentase tertinggi di atas.
+            # Jika persentase sama, urutkan nama alfabetis.
             student_results.sort(
                 key=lambda item: (
                     -item["percentage"],
-                    (item["student"].full_name or "").casefold(),
+                    (
+                        item["student"].full_name or ""
+                    ).casefold(),
                     item["student"].username.casefold(),
                 )
             )
+
             context["student_results"] = student_results
 
     return render(
