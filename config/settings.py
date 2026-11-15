@@ -1,6 +1,6 @@
-
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 import dj_database_url
 from dotenv import load_dotenv
@@ -172,6 +172,15 @@ DATABASES = {
         ssl_require=not DEBUG,
     )
 }
+
+# Neon Pooled Connection menggunakan PgBouncer.
+# Server-side cursor dinonaktifkan untuk kompatibilitas
+# dengan transaction pooling.
+if DATABASE_URL:
+    database_hostname = urlparse(DATABASE_URL).hostname or ""
+
+    if "-pooler" in database_hostname:
+        DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
 
 
 # VALIDASI PASSWORD
