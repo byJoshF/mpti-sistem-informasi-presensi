@@ -1,17 +1,9 @@
-
 {% extends "base.html" %}
 
 {% block title %}Dashboard Mahasiswa | SIHADIR{% endblock %}
-
 {% block page_label %}Dashboard Mahasiswa{% endblock %}
 
-
 {% block content %}
-
-
-<!-- ======================================================
-     WELCOME HERO
-     ====================================================== -->
 
 <section class="dashboard-hero">
 
@@ -34,7 +26,7 @@
 
             <a
                 href="{% url 'classrooms:student_classroom_list' %}"
-                class="hero-button-primary"
+                class="app-button"
             >
                 Lihat Kelas Saya
                 <svg class="icon">
@@ -44,7 +36,7 @@
 
             <button
                 type="button"
-                class="hero-button-glass"
+                class="app-button secondary"
                 data-modal-url="{% url 'classrooms:classroom_join' %}?modal=1"
             >
                 <svg class="icon">
@@ -57,35 +49,10 @@
 
     </div>
 
-
-    <div class="hero-visual" aria-hidden="true">
-
-        <div class="hero-visual-orbit"></div>
-
-        <div class="hero-visual-card">
-
-            <div class="hero-visual-caption">
-                SISTEM PRESENSI
-            </div>
-
-            <div class="hero-visual-line"></div>
-            <div class="hero-visual-line short"></div>
-
-            <div class="hero-visual-status">
-                <span class="hero-visual-status-dot"></span>
-                Aktivitas tercatat
-            </div>
-
-        </div>
-
-    </div>
-
 </section>
 
 
-<!-- ======================================================
-     SUMMARY
-     ====================================================== -->
+<!-- SUMMARY -->
 
 <section class="dashboard-stat-grid student-stats">
 
@@ -99,7 +66,7 @@
 
             <span class="stat-icon">
                 <svg class="icon">
-                    <use href="#icon-book-open"></use>
+                    <use href="#icon-users"></use>
                 </svg>
             </span>
 
@@ -145,9 +112,7 @@
 </section>
 
 
-<!-- ======================================================
-     CLASS LIST
-     ====================================================== -->
+<!-- CLASS LIST -->
 
 <section class="dashboard-section">
 
@@ -252,7 +217,7 @@
 
                 <div class="dashboard-empty-icon">
                     <svg class="icon" style="width:25px;height:25px">
-                        <use href="#icon-book-open"></use>
+                        <use href="#icon-users"></use>
                     </svg>
                 </div>
 
@@ -282,6 +247,5 @@
     </div>
 
 </section>
-
 
 {% endblock %}

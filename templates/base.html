@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="id">
@@ -31,6 +30,82 @@
         rel="stylesheet"
         href="{% static 'css/sihadir-contrast.css' %}"
     >
+    <link
+        rel="stylesheet"
+        href="{% static 'css/sihadir-dashboard-refinement.css' %}"
+    >
+
+    <!-- TOPBAR PROFILE: KHUSUS MAHASISWA -->
+    <style>
+        .topbar-mobile-profile {
+            display: none;
+        }
+
+        @media (max-width: 960px) {
+            .topbar-user-name {
+                display: none !important;
+            }
+
+            .topbar-mobile-profile {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+
+                padding: 0;
+
+                color: #ffffff;
+                background: linear-gradient(
+                    145deg,
+                    #2878d8,
+                    #1555a5
+                );
+
+                border: 2px solid rgba(255, 255, 255, 0.95);
+                border-radius: 50%;
+
+                box-shadow: 0 3px 10px rgba(25, 91, 170, 0.20);
+
+                font-size: 15px;
+                font-weight: 800;
+                line-height: 1;
+
+                text-decoration: none;
+                cursor: pointer;
+
+                transition:
+                    transform 0.2s ease,
+                    box-shadow 0.2s ease;
+            }
+
+            .topbar-mobile-profile:hover {
+                color: #ffffff;
+                transform: translateY(-1px);
+                box-shadow: 0 5px 13px rgba(25, 91, 170, 0.27);
+            }
+
+            .topbar-mobile-profile:active {
+                transform: scale(0.95);
+            }
+
+            .topbar-right {
+                margin-left: auto;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .topbar-mobile-profile {
+                width: 37px;
+                height: 37px;
+                min-width: 37px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -85,11 +160,6 @@
         <path d="M4 18h16"/>
     </symbol>
 
-    <symbol id="icon-shield" viewBox="0 0 24 24">
-        <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/>
-        <path d="m9 12 2 2 4-4"/>
-    </symbol>
-
     <symbol id="icon-plus" viewBox="0 0 24 24">
         <path d="M12 5v14"/>
         <path d="M5 12h14"/>
@@ -100,11 +170,11 @@
         <path d="m12 5 7 7-7 7"/>
     </symbol>
 
-    <symbol id="icon-book-open" viewBox="0 0 24 24">
-        <path d="M12 7v14"/>
-        <path d="M3 18V5a2 2 0 0 1 2-2h3a4 4 0 0 1 4 4 4 4 0 0 1 4-4h3a2 2 0 0 1 2 2v13"/>
-        <path d="M3 18a3 3 0 0 1 3-3h3a3 3 0 0 1 3 3"/>
-        <path d="M21 18a3 3 0 0 0-3-3h-3a3 3 0 0 0-3 3"/>
+    <!-- Ikon grafik yang digunakan pada seluruh tautan Rekap Presensi -->
+    <symbol id="icon-chart" viewBox="0 0 24 24">
+        <path d="M3 3v18h18"/>
+        <path d="m7 14 4-4 4 3 5-7"/>
+        <path d="M16 6h4v4"/>
     </symbol>
 
 </svg>
@@ -147,7 +217,7 @@
                     href="{% url 'classrooms:student_classroom_list' %}"
                     class="sidebar-link {% if request.resolver_match.view_name == 'classrooms:student_classroom_list' %}active{% endif %}"
                 >
-                    <svg class="icon"><use href="#icon-book-open"></use></svg>
+                    <svg class="icon"><use href="#icon-users"></use></svg>
                     <span>Kelas Saya</span>
                 </a>
 
@@ -293,11 +363,9 @@
 
             <div class="topbar-right">
 
-                <div class="topbar-user">
+                <!-- NAMA PENGGUNA: DESKTOP -->
 
-                    <div class="user-avatar" style="width:34px;height:34px;border-radius:10px;font-size:13px;">
-                        {{ user.full_name|default:user.username|slice:":1"|upper }}
-                    </div>
+                <div class="topbar-user">
 
                     <span class="topbar-user-name">
                         {{ user.full_name|default:user.username }}
@@ -305,26 +373,22 @@
 
                 </div>
 
-                <form
-                    method="POST"
-                    action="{% url 'accounts:logout' %}"
-                    style="margin:0;"
-                >
-                    {% csrf_token %}
 
-                    <button
-                        type="submit"
-                        class="topbar-logout"
-                        aria-label="Keluar dari akun"
-                        title="Keluar"
+                <!-- INISIAL PROFIL: MOBILE, KHUSUS MAHASISWA -->
+
+                {% if user.role == "STUDENT" %}
+
+                    <a
+                        href="{% url 'accounts:profile' %}"
+                        data-modal-url="{% url 'accounts:profile' %}?modal=1"
+                        class="topbar-mobile-profile"
+                        aria-label="Buka profil mahasiswa"
+                        title="Profil Saya"
                     >
-                        <svg class="icon" style="width:16px;height:16px">
-                            <use href="#icon-logout"></use>
-                        </svg>
-                        <span>Keluar</span>
-                    </button>
+                        {{ user.full_name|default:user.username|slice:":1"|upper }}
+                    </a>
 
-                </form>
+                {% endif %}
 
             </div>
 
@@ -379,7 +443,7 @@
             href="{% url 'classrooms:student_classroom_list' %}"
             class="mobile-nav-link {% if request.resolver_match.view_name == 'classrooms:student_classroom_list' %}active{% endif %}"
         >
-            <svg class="icon"><use href="#icon-book-open"></use></svg>
+            <svg class="icon"><use href="#icon-users"></use></svg>
             <span>Kelas</span>
         </a>
 

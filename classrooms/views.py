@@ -1,8 +1,8 @@
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Q
+from django.db.models.functions import Lower
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
@@ -374,6 +374,8 @@ def classroom_detail(request, pk):
         teacher=request.user
     )
 
+    # Mahasiswa aktif diurutkan berdasarkan nama lengkap A-Z.
+    # Jika nama sama, username/NIM menjadi urutan berikutnya.
     enrollments = (
         Enrollment.objects
         .filter(
@@ -382,9 +384,13 @@ def classroom_detail(request, pk):
         )
         .select_related("student")
         .prefetch_related("periods")
-        .order_by("joined_at")
+        .order_by(
+            Lower("student__full_name"),
+            "student__username"
+        )
     )
 
+    # Mantan anggota kelas juga diurutkan A-Z agar konsisten.
     inactive_enrollments = (
         Enrollment.objects
         .filter(
@@ -393,7 +399,10 @@ def classroom_detail(request, pk):
         )
         .select_related("student")
         .prefetch_related("periods")
-        .order_by("-joined_at")
+        .order_by(
+            Lower("student__full_name"),
+            "student__username"
+        )
     )
 
     return render(

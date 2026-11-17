@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 {% load static %}
 
@@ -242,6 +241,11 @@
         grid-column: 1/-1;
         opacity: .55;
         cursor: not-allowed;
+    }
+
+    /* Saat tidak ada sesi aktif, tombol Riwayat mengikuti lebar tombol di atasnya. */
+    .student-class-actions .attendance-disabled + .app-button {
+        grid-column: 1/-1;
     }
 
     .student-classes-empty {
