@@ -1,0 +1,249 @@
+/* Dashboard Mahasiswa + Dosen */
+
+.dashboard-hero,
+.teacher-page .dashboard-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: visible;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    min-height: 0;
+    padding: 24px 12px 30px;
+    margin-bottom: 23px;
+
+    color: #17345f;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+/* Aura biru lembut, tanpa kartu dekoratif */
+
+.dashboard-hero::before,
+.teacher-page .dashboard-hero::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -48px;
+    right: -5%;
+
+    width: min(560px, 64vw);
+    height: 235px;
+
+    pointer-events: none;
+    border: 0;
+    border-radius: 50%;
+
+    background: radial-gradient(
+        ellipse at center,
+        rgba(38, 139, 239, 0.15) 0%,
+        rgba(63, 163, 246, 0.09) 38%,
+        rgba(90, 182, 250, 0.035) 59%,
+        transparent 76%
+    );
+}
+
+
+/* Hilangkan ornamen lingkaran dekoratif */
+
+.dashboard-hero::after,
+.teacher-page .dashboard-hero::after {
+    display: none !important;
+}
+
+
+/* Ilustrasi kartu lama tidak lagi digunakan */
+
+.dashboard-hero .hero-visual {
+    display: none !important;
+}
+
+
+/* ==========================================================
+   WELCOME TEXT
+   ========================================================== */
+
+.dashboard-hero .hero-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+}
+
+.dashboard-hero .hero-eyebrow {
+    margin-bottom: 10px;
+    color: #2865aa;
+    font-size: 10px;
+    letter-spacing: 1.35px;
+}
+
+.dashboard-hero .hero-copy h1 {
+    margin-bottom: 9px;
+    color: #102f63;
+    font-size: clamp(24px, 2.7vw, 32px);
+    letter-spacing: -0.65px;
+    line-height: 1.24;
+}
+
+.dashboard-hero .hero-copy p {
+    max-width: 590px;
+    color: #61738e;
+    font-size: 13px;
+    line-height: 1.75;
+}
+
+
+/* ==========================================================
+   DASHBOARD BUTTONS
+   Menggunakan sistem app-button yang sama dengan /classrooms/
+   ========================================================== */
+
+.dashboard-hero .hero-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 19px;
+}
+
+.dashboard-hero .hero-actions .app-button {
+    min-height: 42px;
+    padding: 10px 15px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.dashboard-hero .hero-actions .app-button .icon {
+    width: 16px;
+    height: 16px;
+}
+
+
+/* ==========================================================
+   TOPBAR PROFILE
+   ========================================================== */
+
+/* Profil hanya muncul di layar mobile */
+
+.topbar-profile-link {
+    display: none !important;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 38px;
+    padding: 8px 13px;
+
+    border-radius: 9px;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+
+/* ==========================================================
+   RESPONSIVE: MOBILE AND TABLET
+   ========================================================== */
+
+@media (max-width: 960px) {
+
+    .dashboard-hero,
+    .teacher-page .dashboard-hero {
+        display: block;
+        min-height: 0;
+        padding: 14px 2px 22px;
+        margin-bottom: 16px;
+        border-radius: 0 !important;
+    }
+
+
+    .dashboard-hero::before,
+    .teacher-page .dashboard-hero::before {
+        top: -28px;
+        right: -15%;
+        width: 90vw;
+        height: 190px;
+    }
+
+
+    .dashboard-hero .hero-copy h1 {
+        font-size: clamp(23px, 5.8vw, 28px);
+    }
+
+
+    .dashboard-hero .hero-copy p {
+        max-width: 100%;
+        font-size: 12px;
+    }
+
+
+    .dashboard-hero .hero-actions {
+        margin-top: 16px;
+        gap: 8px;
+    }
+
+
+    .dashboard-hero .hero-actions .app-button {
+        min-height: 40px;
+        padding: 9px 13px;
+        font-size: 11px;
+    }
+
+
+    /* Nama tidak ditampilkan di header HP */
+
+    .topbar-user-name {
+        display: none !important;
+    }
+
+
+    /* Profil menggantikan area nama dan tombol keluar */
+
+    .topbar-profile-link {
+        display: inline-flex !important;
+        min-height: 38px;
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+
+
+    .topbar-right {
+        margin-left: auto;
+        gap: 8px;
+    }
+
+}
+
+
+/* ==========================================================
+   SMALL MOBILE
+   ========================================================== */
+
+@media (max-width: 430px) {
+
+    .dashboard-hero {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .dashboard-hero .hero-actions {
+        gap: 7px;
+    }
+
+    .dashboard-hero .hero-actions .app-button {
+        min-height: 39px;
+        padding: 8px 11px;
+        font-size: 10px;
+    }
+
+    .topbar-profile-link {
+        min-height: 36px;
+        padding: 7px 10px;
+    }
+
+}
