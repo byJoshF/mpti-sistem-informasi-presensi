@@ -32,9 +32,9 @@ if not SECRET_KEY:
             "SECRET_KEY wajib disediakan melalui environment variable."
         )
 
-
-RENDER_EXTERNAL_HOSTNAME = os.getenv(
-    "RENDER_EXTERNAL_HOSTNAME",
+VERCEL_URL = os.getenv("VERCEL_URL", "").strip()
+VERCEL_PROJECT_PRODUCTION_URL = os.getenv(
+    "VERCEL_PROJECT_PRODUCTION_URL",
     ""
 ).strip()
 
@@ -52,8 +52,11 @@ if DEBUG:
         "[::1]",
     ])
 
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+if VERCEL_URL:
+    ALLOWED_HOSTS.append(VERCEL_URL)
+
+if VERCEL_PROJECT_PRODUCTION_URL:
+    ALLOWED_HOSTS.append(VERCEL_PROJECT_PRODUCTION_URL)
 
 ALLOWED_HOSTS = list(dict.fromkeys(ALLOWED_HOSTS))
 
@@ -73,13 +76,19 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
-if RENDER_EXTERNAL_HOSTNAME:
+if VERCEL_URL:
 
-    render_origin = f"https://{RENDER_EXTERNAL_HOSTNAME}"
+    vercel_origin = f"https://{VERCEL_URL}"
 
-    if render_origin not in CSRF_TRUSTED_ORIGINS:
-        CSRF_TRUSTED_ORIGINS.append(render_origin)
+    if vercel_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(vercel_origin)
 
+if VERCEL_PROJECT_PRODUCTION_URL:
+
+    vercel_prod_origin = f"https://{VERCEL_PROJECT_PRODUCTION_URL}"
+
+    if vercel_prod_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(vercel_prod_origin)
 
 SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",
